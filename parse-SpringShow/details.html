@@ -1,0 +1,434 @@
+<!doctype html>
+<head>
+	<title>Submit stuff for the Spring show</title>
+	
+	<meta charset="utf-8">
+	<meta name="description" content="My Parse App">
+	<meta name="viewport" content="width=device-width">
+	
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/styles.css">
+	
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.4.min.js"></script>
+
+	<!-- 
+	
+	TODO: Parse Cheat sheet
+		User
+			Parse.initialize(appID, jsKey) // Init Parse
+			Parse.User.current() // Gets current user
+			new Parse.File(file, fileName)
+			ParseFile.save().then(promise)
+			Query.equalTo(key, value)
+			
+			// make a parse object
+			Parse.Object.extend("Name")
+			obj = new Name()
+			
+			
+		
+	-->
+
+</head>
+
+<body>
+	<div id="main">
+		<h1>Parse Spring Show</h1>
+		<p>User: <span id="user-id"></span></p>
+		<form id="comment-form" method="post" enctype="multipart/form-data">
+			<div>
+				<p><label>Comment</label></p>
+				<p><textarea id="comment"></textarea></p>
+			</div>
+			<div>
+				<p><label>Student ID</label></p>
+				<p><input type="number" id="student-id-input"></p>
+			</div>
+			<div>
+				<p><label>Student Name</label></p>
+				<p><input type="text" id="student-name-input"></p>
+			</div>
+			<div>
+				<p><label>Upload Image</label></p>
+				<p><input type="file" id="input-file"></p>
+				<small>File size limit: 10MB</small>
+			</div>
+			<div>
+				<p><label>External Link</label></p>
+				<p><input type="url" id="external-link-input"></p>
+			</div>
+			<p><input type="submit"></p>
+		</form>
+	
+		<ul id="posts">
+			<!-- list posts -->
+		</ul>
+		
+		<div>
+			<p>
+				<button id="previous-button">Previous</button>
+				<button id="next-button">Next</button>
+			</p>
+		</div>
+		
+		<!-- ????? -->
+		<div id="login-container">
+			<h1>Login</h1>
+			<form id="login">
+				<p>name<input id="login-name" type="text"></p>
+				<p>password<input id="login-password" type="password"></p>
+				<p><input type="submit"></p>
+			</form>
+		</div>
+	
+		<div id="signup-container">
+			<h1>Sign up</h1>
+			<form id="signup">
+				<p>name<input id="signup-name" type="text"></p>
+				<p>email<input id="signup-email" type="email"></p>
+				<p>password<input id="signup-password" type="password"></p>
+				<p><input type="submit"></p>
+			</form>
+		</div>
+		
+		<div id="logout-container">
+			<button id="logout">Log out</button>
+		</div>
+		<!-- ????? -->
+	</div><!-- #main -->
+	
+	<!-- ************************************************* -->
+	
+	<script type="text/javascript">
+	// Init Parse with keys
+	Parse.initialize("Y11pFemQTSvT81ACSsAH92m31sGHiTDLjGczOZB7", "5Hzk1JhTSLNwd7fO8VkARxMV1plNLdOW206IkHQo");
+	
+	// **********************************************************************************
+	
+	// JQuery load - UI setup
+	
+	$(function() {
+		$("#comment-form").submit(function(event){
+			event.preventDefault();
+			if (Parse.User.current()) {
+				addPost();
+			} else {
+				alert("You must login before you can post");
+				console.log("! Need to login before you can post !");
+			}
+		});
+		
+		
+		$("#login").submit(function(event){
+			var name = $("#login-name").val();
+			var pass = $("#login-password").val();
+			login(name, pass);
+			event.preventDefault();
+		});
+		
+		$("#signup").submit(function(event) {
+			console.log("Sign in submit");
+			var name = $("#signup-name").val();
+			var email = $("#signup-email").val();
+			var password = $("#signup-password").val();
+			signup(name, email, password);
+			event.preventDefault();
+		});
+		
+		// Log out button
+		$("#logout").click(function(){
+			Parse.User.logOut();
+			displayUser();
+		});
+		
+		// Like link 
+		$("#posts").on("click", ".like-button", function(event) {
+			var postId = $(this).attr("data-id");
+			console.log("liking post:", postId);
+			like(postId);
+			if ($(this).html() == "Like") {
+				$(this).html("Unlike");
+			} else {
+				$(this).html("Like");
+			}
+		});
+		
+	});
+	
+	// **********************************************************************************
+	
+	// Add a post 
+	function addPost() {
+		// Get the file to upload
+		var fileUploadElement = $("#input-file")[0];
+		var filepath = $("#input-file").val();
+		var filename = filepath.split('\\').pop()
+				
+		// Upload the file
+		if (fileUploadElement.files.length > 0) {
+			// If there's a file upload it then add a post
+			var file = fileUploadElement.files[0];
+			var parseFile = new Parse.File(filename, file);
+			
+			parseFile.save().then(function() {
+				console.log("ParseFile Success");
+				saveComment(parseFile);
+			}, function(error) {
+				console.log("ParseFile Error:"+error.message);
+			});
+		} else {
+			// Else if no file just upload a post
+			saveComment(false);
+		}
+		
+	}
+	
+	function saveComment(file) {
+		// Make a new Comment object - will generate a record in the Comment table
+		var Comment = Parse.Object.extend("Comment");
+		var comment = new Comment();
+		
+		// Get the text of the comment
+		var text = $("#comment").val();
+		
+		// Set a value on the comment - will add a field to the Comment table
+		comment.set("comment", text);
+		// Set the current user as author of this comment
+		comment.set("author", Parse.User.current());
+		
+		// check file 
+		if (file) {
+			comment.set("image", file);
+		} else {
+			comment.set("image", null);
+		}
+		
+		// Save the new comment
+		comment.save(null, {
+			success: function(comment) {
+				// If successful post a message 
+				console.log("New Comment added:"+comment.id);
+				updateComments(); // Update the comment list
+			}, 	
+			error: function(comment, error) {
+				// Post a message if there's an error 
+				console.log("Comment failed:"+error.message);
+			}
+		});
+
+	}
+	
+	// **********************************************************************************
+	// This is not functioning, yet...
+	// Like post 
+	
+	function like(postId) {
+		var Like = Parse.Object.extend("Like");
+		var like = new Like();
+		var likeQuery = Parse.query = new Parse.Query(Like);
+		likeQuery.equalTo("user", Parse.User.current());
+		likeQuery.equalTo("commentId", postId);
+		
+		likeQuery.find({
+			success: function(likes) {
+				console.log("Search for Likes successful");
+				if (likes.length > 0) {
+					console.log("Like found!", likes.length);
+					for (var i in likes) {
+						likes[i].destroy({
+							success: function() { console.log("Like destroyed") },
+							error: function() { console.log("Like Destroy error") }
+						});
+					}
+				} else {
+					console.log("no Like found, add one!");
+					var Like = Parse.Object.extend("Like");
+					var like = new Like();
+					like.set("user", Parse.User.current());
+					like.set("commentId", postId);
+					like.save(null, {
+						success: function(like) {
+							console.log("Like success", like.id);
+							console.log("Like commentID:", like.get("commentId"));
+							console.log("Like user", like.get("user"));
+						}, 
+						error: function(like, error) {
+							console.log("like error", error.message);
+						}
+					});
+				}
+			},
+			error: function(like, error) {
+				console.log("No Like found Error");
+			}
+		})
+		
+		/*
+		like.set("user", Parse.User.current());
+		like.set("commentId", postId);
+		
+		// TODO: Check for duplicate like: Like commentId, user
+		
+		like.save(null, {
+			success: function(like) {
+				console.log("Like success", like.id);
+				console.log("Like commentID:", like.get("commentId"));
+				console.log("Like user", like.get("user"));
+			},
+			error: function(like, error) {
+				console.log("like error", error.message);
+			}
+		});
+		*/
+	}
+	
+	// **********************************************************************************
+	
+	// Display all records in the comment table 
+	
+	function updateComments() {
+		// Get user 
+		var user = Parse.User.current();
+		
+		// Make a new Comment Object - This represents the Comment table
+		var Comment = Parse.Object.extend("Comment");
+		
+		// Query the comment table
+		var query = new Parse.Query(Comment);
+		query.include("author");
+		
+		// Order by date, most recent first
+		query.descending("createdAt");
+		
+		// Run the Query find all
+		query.find({
+			success: function(results) {
+				console.log("Comment Query success:"+results.length);
+				var newList = "";
+				// Loop through all of the results
+				for (var i = 0; i < results.length; i++) {
+					// get each object from results, get the comment field 
+					var obj = results[i];
+					var id = obj.id;
+					var comment = obj.get("comment");
+					var date = obj.get("createdAt");
+					var author = obj.get("author");
+					var username = author.get("username"); // attributes.username;
+					var image = obj.get("image");
+					var thumbnail = obj.get("thumbnail");
+					
+					var thumbImg = "";
+					if (thumbnail != undefined) {
+						// --------------------------------------------------------
+						thumbImg = "<li>"+
+						"<a href='"+image.url()+"'>"+
+						"<div><img src='"+thumbnail.url()+"'></div></a>"+
+						"<div><button data-id='"+id+"' class='like-button'>Like</button></div>"+
+						"</li>";
+						// --------------------------------------------------------
+					} else {
+						thumbImg = "";
+					}
+					
+					newList += "<li data-id='"+id+"'>"+
+					comment+"<p>"+username+"</p>"+thumbImg+"</li>";
+					
+				}
+				$("#posts").html(newList);
+				getLikes();
+			}
+		});
+	}
+	
+	// Load comments on load
+	updateComments();
+	
+	// **********************************************************************************
+	
+	function getLikes() {
+		var Like = Parse.Object.extend("Like");
+		var likeQuery = new Parse.Query(Like);
+		likeQuery.equalTo("user", Parse.User.current());
+		likeQuery.find({
+			success: function(likes) {
+				for (var i in likes) {
+					console.log(likes[i].get("commentId"), likes[i].get("user"));
+					var id = likes[i].get("commentId");
+					$("button[data-id='"+id+"']").html("Unlike");
+				}
+			}, error: function() {
+				console.log("Like Query Error:"+error.message);
+			}
+		});
+	}
+	
+	// **********************************************************************************
+	
+	function signup(username, email, password) {
+		console.log("Sign up new User", username, email, password);
+		var user = new Parse.User();
+		user.set("username", username);
+		user.set("password", password);
+		user.set("email", email);
+		
+		user.signUp(null, {
+			success: function(user){
+				console.log("Sign up Success:");
+				displayUser();
+			},
+			error: function(user, error) {
+				console.log("Sign up error:"+error.message);
+			}
+		});
+		
+	}
+	
+	function login(username, password) {
+		Parse.User.logIn(username, password, {
+			success: function(user){
+				console.log("Login Success:"+user.username);
+				displayUser();
+			},
+			error: function(user, error) {
+				console.log("login error:"+error.message);
+			}
+		});
+	}
+	
+	
+	// Display user name
+	function displayUser() {
+		var user = Parse.User.current()
+		if (user) {
+			console.log("Success User:"+user.get("username"));
+			$("#user-id").html(user.attributes.username);
+		} else {
+			console.log("Error user");
+			$("#user-id").html("");
+		}
+		showHideLoginSignUp();
+	}
+	
+	// Get the user name when loaded
+	displayUser();
+	
+	
+	// Show and hide login signup and logout
+	function showHideLoginSignUp() {
+		if (Parse.User.current()) {
+			$("#logout-container").show();
+			$("#login-container").hide();
+			$("#signup-container").hide();
+		} else {
+			$("#logout-container").hide();
+			$("#login-container").show();
+			$("#signup-container").show();
+		}
+	}
+	
+	showHideLoginSignUp();
+	</script>
+	</body>
+	
+	</html>
