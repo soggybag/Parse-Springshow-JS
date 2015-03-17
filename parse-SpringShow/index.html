@@ -9,8 +9,9 @@
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/styles.css">
 	
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.4.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="http://www.parsecdn.com/js/parse-1.3.4.min.js"></script>
+	<script src="jquery.jqote2.min.js"></script>
 
 	<!-- 
 	TODO: 
@@ -44,40 +45,58 @@
 			query.equalTo("key", value)
 			query.find(null, {success:function(results){}, error:function(error){} })
 			
-		TODO: 
+		Research: 
 			React: http://facebook.github.io/react/	
 			Backbone: http://backbonejs.org/
-			
 		
 	-->
 
 </head>
 
 <body>
-	<div id="main" class="box">
-		<h1>Parse Spring Show</h1>
-		<p>User: <span id="user-id"></span></p>
-		<form id="comment-form" method="post" enctype="multipart/form-data">
-			<div>
-				<p><label>Comment</label></p>
-				<p><textarea id="comment"></textarea></p>
+	<div id="" class="box">
+	
+		<!-- Navigation bar -->
+		<div id="navigation-bar">
+			<h1 id="title"><a href="">Spring Show</a></h1>
+			<a class="bar-button" id="refresh" href="">refresh</a>
+			<a class="bar-button" id="profile" href="">profile</a>
+			<a class="bar-button" id="new-post" href="">new</a>
+		</div>
+		
+		<!-- User Status -->
+		<div id="user-status">
+			<p>User: <span id="user-id"></span></p>
+			<div id="logout-container">
+				<button id="logout">Log out</button>
 			</div>
-			<div>
-				<p><label>Upload Image</label></p>
-				<p><input type="file" id="input-file"></p>
-				<small>File size limit: 10MB</small>
+		</div>
+		
+		<div id="user-profile-container">
+			<p>User: <span id="user-id"></span></p>
+			<p>Number of posts: <span class="post-count"></span></p>
+			<p>Likes: <span class="like-count"></span></p>
+			<div id="user-profile-info-container"></div>
+			<div id="logout-container">
+				<button id="logout">Log out</button>
 			</div>
-			<div>
-				<p><label>External Link</label></p>
-				<p><input type="url" id="external-link-input"></p>
+			<p><a id="show-user-posts" href="">Posts</a></p>
+			<p><a id="show-user-likes" href="">Liked</a></p>
+			<p><a id="show-user-spring-show" href="">Spring Show</a></p>
+			
+			<div id="user-profile-posts-container">
+				<ul id="user-profile-posts">
+					<!-- 
+						Posts in user profile 
+						Could be liked posts, Spring show posts, 
+						or user posts 
+					-->
+				</ul>
 			</div>
-			<p><input type="submit"></p>
-		</form>
+		</div>
 		
 		
-		
-		
-		<!-- ????? -->
+		<!-- login -->
 		<div id="login-container">
 			<h1>Login</h1>
 			<form id="login">
@@ -88,9 +107,9 @@
 				<p><input type="submit"></p>
 			</form>
 		</div>
-	
-	
-	
+		
+		
+		<!-- sign up -->
 		<div id="signup-container">
 			<h1>Sign up</h1>
 			<form id="signup">
@@ -112,470 +131,840 @@
 		</div>
 		
 		
-		
-		
-		<div id="logout-container">
-			<button id="logout">Log out</button>
+		<!-- comment form -->
+		<div id="comment-form-container">
+			<form id="comment-form" method="post" enctype="multipart/form-data">
+				<div>
+					<p><textarea id="comment" placeholder="Comment"></textarea></p>
+				</div>
+				<div>
+					<p><label>Upload Image</label></p>
+					<p><input type="file" id="input-file"></p>
+					<small>File size limit: 10MB</small>
+				</div>
+				<p><input type="submit"></p>
+			</form>
 		</div>
-		<!-- ????? -->
-	</div><!-- #main -->
-	
-	
-	<div id="" class="box">
-		<h1>Details</h1>
-		<ul id="posts">
-			<!-- list posts -->
-		</ul>
-		<!-- <div>
-			<p>
-				<button id="previous-button">Previous</button>
-				<button id="next-button">Next</button>
-			</p>
-		</div> -->
+		
+		
+		<!-- posts container -->
+		<div id="posts-container">
+			<ul id="posts">
+				<!-- list posts -->
+			</ul>
+		</div>
+		
 	</div>
 	
 	
 	
 	
 	
-	<!-- ************************************************* -->
+<!-- ************************************************* -->
+
+<script type="text/javascript">
+/* 
+
+Todo: 
 	
-	<script type="text/javascript">
-	// Init Parse with keys
-	Parse.initialize("Y11pFemQTSvT81ACSsAH92m31sGHiTDLjGczOZB7", "5Hzk1JhTSLNwd7fO8VkARxMV1plNLdOW206IkHQo");
+	Like and My Spring Show buttons	
+		Get Like count for each post
+		Make Like Icon
+		Change like button to icon
+		Make Springshow icon
+		Change My Spring show to button
+		Style like icon to highlight to show current user likes
+		Style My Springshow to hight for current user spring show picks
+		
+	Profile page 
+		Show current user's likes
+			need function to get likes for current user
+		Show current user's Springshow picks
+			need function to get spring show picks for current user
+		
+	Alert View
+		Add a view for alert messages
+			needs function and style to place it and fade it away
 	
-	// **********************************************************************************
+	Add New Post Container
+		Limit text in textarea to 128 characters
+			add character count
 	
-	// JQuery load - UI setup
-	
-	$(function() {
-		$("#comment-form").submit(function(event){
-			event.preventDefault();
-			if (Parse.User.current()) {
-				addPost();
-			} else {
-				alert("You must login before you can post");
-				console.log("! Need to login before you can post !");
-			}
-		});
+	Define variables for user profile
+		spring show array
+		like array
+		posts array
 		
-		
-		$("#login").submit(function(event){
-			var name = $("#login-name").val();
-			var pass = $("#login-password").val();
-			login(name, pass);
-			event.preventDefault();
-		});
-		
-		
-		$("#signup").submit(function(event) {
-			console.log("*** Sign in submit ***");
-			event.preventDefault();
-			var name 		= $("#signup-name").val();
-			var email 		= $("#signup-email").val();
-			var password 	= $("#signup-password").val();
-			var studentId 	= $("#student-id-input").val();
-			var firstName 	= $("#first-name-input").val();
-			var lastName 	= $("#last-name-input").val();
+	Define color palette
 			
-			signup(name, email, password, studentId, firstName, lastName);
-		});
+*/
+
+// Init Parse with keys
+Parse.initialize("Y11pFemQTSvT81ACSsAH92m31sGHiTDLjGczOZB7", "5Hzk1JhTSLNwd7fO8VkARxMV1plNLdOW206IkHQo");
+
+// **********************************************************************************
+// Set initial number of posts to load 
+// **********************************************************************************
+var postsToLoadCount = 10;
+var user_status, login_container, signup_container, comment_form_container, posts_container, user_profile_container
+var all_containers = [];
+
+
+
+// **********************************************************************************
+// View Management
+// **********************************************************************************
+
+function showLogin() {
+	showHideLoginSignUp();
+}
+
+function showNewPostform() {
+	hideAndShow(all_containers, [comment_form_container]);
+}
+
+// TODO: Fix Log out button. 
+// TODO: Should show Login sign up when not logged in
+// TODO: Change Bar button from to login Maybe add ? to profile icon image
+
+function showProfile() {
+	console.log("show profile:"+Parse.User.current());
+	if (Parse.User.current()) {
+		console.log("Showing User profile");
+		getUserProfileForCurrentUser();
+		hideAndShow(all_containers, [user_profile_container]);
+	} else {
+		console.log("Showing login and signup");
+		hideAndShow(all_containers, [login_container, signup_container]);
+	}
+}
+
+function showAndRefreshPosts() {
+	hideAndShow(all_containers, [posts_container]);
+	updateComments();
+}
+
+
+// Show and hide login signup and logout
+function showHideLoginSignUp() {
+	if (Parse.User.current()) {
+		console.log("Showing posts container");
+		hideAndShow(all_containers, [posts_container]);
+	} else {
+		console.log("Showing login and signup");
+		hideAndShow(all_containers, [login_container, signup_container]);
+	}
+}
+
+function hideAndShow(hideThese, showThese) {
+	$.each(hideThese, function(index, thing) {
+		$(thing).hide();
+	});
+	$.each(showThese, function(index, thing) {
+		$(thing).show();
+	});
+}
+
+
+// ***************************************************************
+// jQuery set up
+// ***************************************************************
+$(function() {
+	// View Containers
+	user_status 			= $("#user-status");
+	login_container 		= $("#login-container");
+	user_profile_container 	= $("#user-profile-container");
+	signup_container 		= $("#signup-container");
+	comment_form_container 	= $("#comment-form-container");
+	posts_container 		= $("#posts-container");
+	all_containers = [user_status, login_container, signup_container, comment_form_container, posts_container, user_profile_container];
+
+	// -------------------------------------------------------
+	// Comment form Submit handler
+	$("#comment-form").submit(function(event){
+		event.preventDefault();
+		if (Parse.User.current()) {
+			addPost();
+		} else {
+			alert("You must login before you can post");
+			console.log("! Need to login before you can post !");
+		}
+	});
+	
+	// ----------------------------------------------------------
+	// Login Submit handler
+	$("#login").submit(function(event){
+		var name = $("#login-name").val();
+		var pass = $("#login-password").val();
+		login(name, pass);
+		event.preventDefault();
+	});
+	
+	// ------------------------------------------------------------
+	// Sign up Submit Handler
+	$("#signup").submit(function(event) {
+		console.log("*** Sign in submit ***");
+		event.preventDefault();
+		var name 		= $("#signup-name").val();
+		var email 		= $("#signup-email").val();
+		var password 	= $("#signup-password").val();
+		var studentId 	= $("#student-id-input").val();
+		var firstName 	= $("#first-name-input").val();
+		var lastName 	= $("#last-name-input").val();
 		
-		// Log out button
-		$("#logout").click(function(){
-			Parse.User.logOut();
-			displayUser();
-		});
-		
-		// Like button
-		$("#posts").on("click", ".like-button", function(event) {
-			var postId = $(this).parent().attr("data-id");
-			console.log("liking post:", postId);
-			like(postId);
-			if ($(this).html() == "Like") {
-				$(this).html("Unlike");
-			} else {
-				$(this).html("Like");
-			}
-		});
-		
-		// My Spring Show Button 
-		$("#posts").on("click", ".my-springshow-button", function(event) {
-			console.log("My Spring show button");
-			var postId = $(this).parent().attr("data-id");
-			addToMySpringshow(postId);
-			
-		});
+		signup(name, email, password, studentId, firstName, lastName);
+	});
+	
+	// --------------------------------------------------------
+	// Log out button
+	$("#logout").click(function(){
+		Parse.User.logOut();
+		displayUser();
+	});
+	
+	// --------------------------------------------------------
+	// Like button
+	$("#posts").on("click", ".like-button", function(event) {
+		var postId = $(this).parent().attr("data-id");
+		console.log("liking post:", postId);
+		like(postId);
+		if ($(this).html() == "Like") {
+			$(this).html("Unlike");
+		} else {
+			$(this).html("Like");
+		}
+	});
+	
+	// --------------------------------------------------------
+	// My Spring Show Button 
+	$("#posts").on("click", ".my-springshow-button", function(event) {
+		console.log("My Spring show button");
+		var postId = $(this).parent().attr("data-id");
+		addToMySpringshow(postId);
 		
 	});
 	
-	// **********************************************************************************
+	// -------------------------------------------------------
+	// Load More link handler
+	// -------------------------------------------------------
+	$("#posts").on("click", "#load-more", function(event) {
+		event.preventDefault();
+		console.log("Load More Posts");
+		// load the next group of images
+		postsToLoadCount += 10;
+		updateComments();
+	});
 	
-	// Add a post 
-	function addPost() {
-		// Get the file to upload
-		var fileUploadElement = $("#input-file")[0];
-		var filepath = $("#input-file").val();
-		var filename = filepath.split('\\').pop()
-				
-		// Upload the file
-		if (fileUploadElement.files.length > 0) {
-			// If there's a file upload it then add a post
-			var file = fileUploadElement.files[0];
-			var parseFile = new Parse.File(filename, file);
-			
-			parseFile.save().then(function() {
-				console.log("ParseFile Success");
-				saveComment(parseFile);
-			}, function(error) {
-				console.log("ParseFile Error:"+error.message);
-			});
-		} else {
-			// Else if no file just upload a post
-			saveComment(false);
-		}
-	}
+	// -------------------------------------------------------
+	// User Profile 
+	// -------------------------------------------------------
+	$("#user-profile-container").on("click", "#show-user-posts", function(event){
+		event.preventDefault();
+		console.log("Show Posts for user");
+		showPostsForUser();
+	});
+	
+	$("#user-profile-container").on("click", "#show-user-likes", function(event){
+		event.preventDefault();
+		console.log("Show Posts liked by user");
+		showPostsLikedByUser();
+	});
+	
+	$("#user-profile-container").on("click", "#show-user-spring-show", function(event){
+		event.preventDefault();
+		console.log("Show Posts liked by user");
+		showSpringShowPicksForUser();
+	});
 	
 	
+	// -------------------------------------------------------
+	// nav bar buttons 
+	// -------------------------------------------------------
+	
+	// Tapping title 
+	$("#title>a").click(function(event){
+		event.preventDefault();
+		showAndRefreshPosts();
+	});
+	
+	// Add new post 
+	$("#new-post").click(function(event){
+		event.preventDefault();
+		showNewPostform();
+	});
+	
+	// Profile button
+	$("#profile").click(function(event){
+		event.preventDefault();
+		showProfile();
+	});
+	
+	// refresh button 
+	$("#refresh").click(function(event){
+		event.preventDefault();
+		showAndRefreshPosts();
+	});
 	
 	
+	// --------------------------------------------------
+	// Initialize 
+	// --------------------------------------------------
+	showAndRefreshPosts();
 	
-	function saveComment(file) {
-		// Make a new Comment object - will generate a record in the Comment table
-		var Comment = Parse.Object.extend("Comment");
-		var comment = new Comment();
-		
-		// Get the text of the comment
-		var text = $("#comment").val();
-		
-		// Set a value on the comment - will add a field to the Comment table
-		comment.set("comment", text);
-		// Set the current user as author of this comment
-		comment.set("author", Parse.User.current());
-		
-		// check file 
-		if (file) {
-			comment.set("image", file);
-		} else {
-			comment.set("image", null);
-		}
-		
-		// Save the new comment
-		comment.save(null, {
-			success: function(comment) {
-				// If successful post a message 
-				console.log("New Comment added:"+comment.id);
-				updateComments(); // Update the comment list
-			}, 	
-			error: function(comment, error) {
-				// Post a message if there's an error 
-				console.log("Comment failed:"+error.message);
-			}
-		});
+});
+// **********************************************************************************
 
+
+// Add a post - This uploads the file
+function addPost() {
+	// Get the file to upload
+	var fileUploadElement = $("#input-file")[0];
+	var filepath = $("#input-file").val();
+	var filename = filepath.split('\\').pop()
+			
+	// Upload the file
+	if (fileUploadElement.files.length > 0) {
+		// If there's a file upload it then add a post
+		var file = fileUploadElement.files[0];
+		var parseFile = new Parse.File(filename, file);
+		
+		parseFile.save().then(function() {
+			console.log("ParseFile Success");
+			saveComment(parseFile);
+		}, function(error) {
+			console.log("ParseFile Error:"+error.message);
+		});
+	} else {
+		// Else if no file just upload a post
+		saveComment(false);
+	}
+}
+
+// Add Comment - After uploading file upload comment
+function saveComment(file) {
+	// Make a new Comment object - will generate a record in the Comment table
+	var Comment = Parse.Object.extend("Comment");
+	var comment = new Comment();
+	
+	// Get the text of the comment
+	var text = $("#comment").val();
+	
+	// Set a value on the comment - will add a field to the Comment table
+	comment.set("comment", text);
+	// Set the current user as author of this comment
+	comment.set("author", Parse.User.current());
+	
+	// check file 
+	if (file) {
+		comment.set("image", file);
+	} else {
+		comment.set("image", null);
 	}
 	
-	// **********************************************************************************
-	// This is not functioning, yet...
-	// Like post 
+	// Save the new comment
+	comment.save(null, {
+		success: function(comment) {
+			console.log("New Comment added:"+comment.id);	// If successful post a message 
+			// updateComments(); 	// Update the comment list
+			showAndRefreshPosts(); 	// Show the posts container and refresh
+		}, 	
+		error: function(comment, error) {
+			// Post a message if there's an error 
+			console.log("Comment failed:"+error.message);
+		}
+	});
+
+}
+
+// **********************************************************************************
+// This is not functioning, yet...
+// Like post 
+
+function like(postId) {
+	var Like = Parse.Object.extend("Like");
+	var like = new Like();
+	var likeQuery = Parse.query = new Parse.Query(Like);
+	likeQuery.equalTo("user", Parse.User.current());
+	likeQuery.equalTo("commentId", postId);
 	
-	function like(postId) {
-		var Like = Parse.Object.extend("Like");
-		var like = new Like();
-		var likeQuery = Parse.query = new Parse.Query(Like);
-		likeQuery.equalTo("user", Parse.User.current());
-		likeQuery.equalTo("commentId", postId);
-		
-		likeQuery.find({
-			success: function(likes) {
-				console.log("Search for Likes successful");
-				if (likes.length > 0) {
-					console.log("Like found!", likes.length);
-					for (var i in likes) {
-						likes[i].destroy({
-							success: function() { console.log("Like destroyed") },
-							error: function() { console.log("Like Destroy error") }
-						});
-					}
-				} else {
-					console.log("no Like found, add one!");
-					var Like = Parse.Object.extend("Like");
-					var like = new Like();
-					like.set("user", Parse.User.current());
-					like.set("commentId", postId);
-					like.save(null, {
-						success: function(like) {
-							console.log("Like success", like.id);
-							console.log("Like commentID:", like.get("commentId"));
-							console.log("Like user", like.get("user"));
-						}, 
-						error: function(like, error) {
-							console.log("like error", error.message);
+	// TODO: *************** 
+	// Fix this to save a pointer to a Comment
+	// Must add and destroy via Comment pointer
+	
+	likeQuery.find({
+		success: function(likes) {
+			console.log("Search for Likes successful");
+			if (likes.length > 0) {
+				console.log("Like found!", likes.length);
+				for (var i in likes) {
+					likes[i].destroy({
+						success: function() { 
+							console.log("Like destroyed") 
+						},
+						error: function() { 
+							console.log("Like Destroy error"); 
 						}
 					});
 				}
-			},
-			error: function(like, error) {
-				console.log("No Like found Error");
-			}
-		})
-	}
-	
-	
-	// **********************************************************************************
-	
-	function addToMySpringshow(postId) {
-		var Profile = Parse.Object.extend("Profile");
-		var query = new Parse.Query(Profile);
-		query.equalTo("user", Parse.User.current());
-		query.find({
-			success: function(results) {
-				console.log("Success add to springshow:"+results);
-				console.log(results.length);
-				console.log(results[0].get("mySpringShow"));
-				
-				var mySpringShow = results[0].get("mySpringShow");
-				
-				if (mySpringShow.indexOf(postId) == -1 && mySpringShow.length <= 5) { 
-					// Item does not exist and there are 5 or less items, add the item to the list
-					console.log("New item added to your springshow list");
-					mySpringShow.push(postId);
-					results[0].set("mySpringShow", mySpringShow);
-					results[0].save({
-						success: function(results) {
-							console.log("success: added to my springshow count:"+results.get("mySpringShow").length);
-							updateRemoveFromSpringShowFor(postId);
-						},
-						error: function(results, error) {console.log("Error added to my springshow: "+error.message);}
-					});
-				} else if (mySpringShow.indexOf(postId) == -1 && mySpringShow.length >= 5) {
-					// Item does not exist and there are 5 items in the list, do nothing
-					console.log("You have 5 springshow items in your list count:"+results[0].get("mySpringShow").length);
-					
-				} else if (mySpringShow.indexOf(postId) != -1) {
-					// Item exists in the list, remove item
-					console.log("This item removed from your spring show list");
-					mySpringShow.splice(mySpringShow.indexOf(postId), 1);
-					results[0].set("mySpringShow", mySpringShow);
-					results[0].save({
-						success: function(results) {
-							console.log("success: Item removed from springshow list count:"+results.get("mySpringShow").length);
-							updateAddToSpringShowFor(postId);
-						},
-						error: function(results, error) {console.log("Error removing item from spring show: "+error.message);}
-					});
-				}
-			}, error: function(error) {
-				console.log("Error:"+error.message);
-				
-			}
-		});
-	}
-	
-	// **********************************************************************************
-	
-	// Display all records in the comment table 
-	
-	function updateComments() {
-		// Get user 
-		var user = Parse.User.current();
-		
-		// Make a new Comment Object - This represents the Comment table
-		var Comment = Parse.Object.extend("Comment");
-		
-		// Query the comment table
-		var query = new Parse.Query(Comment);
-		query.include("author");
-		
-		// Order by date, most recent first
-		query.descending("createdAt");
-		
-		// Run the Query find all
-		query.find({
-			success: function(results) {
-				console.log("Comment Query success:"+results.length);
-				var newList = "";
-				// Loop through all of the results
-				for (var i = 0; i < results.length; i++) {
-					// get each object from results, get the comment field 
-					var obj = results[i];
-					var id = obj.id;
-					var comment 	= obj.get("comment");
-					var date 		= obj.get("createdAt");
-					var author 		= obj.get("author");
-					var username 	= author.get("username"); // attributes.username;
-					var image 		= obj.get("image");
-					var thumbnail 	= obj.get("thumbnail");
-					
-					var thumbImg = "";
-					if (thumbnail != undefined) {
-						// ---------------------------------------------------------
-						thumbImg = "<li>"+
-						"<a href='"+image.url()+"'>"+
-						"<div><img src='"+thumbnail.url()+"'></div></a>"+
-						"<div data-id='"+id+"'>"+
-						"<button class='like-button'>Like</button>"+
-						"<button class='my-springshow-button'>Add to My Spring Show</button>"+
-						"</div>"+
-						"</li>";
-						// ---------------------------------------------------------
-					} else {
-						thumbImg = "";
+			} else {
+				console.log("no Like found, add one!");
+				var Like = Parse.Object.extend("Like");
+				var like = new Like();
+				like.set("user", Parse.User.current());
+				like.set("commentId", postId);					// Sets commentId as String???
+				var Comment = Parse.Object.extend("Comment");	
+				like.set("comment", new Comment({id:postId})); // set comment to pointer
+				like.save(null, {
+					success: function(like) {
+						console.log("Like success", like.id);
+						console.log("Like commentID:", like.get("commentId"));
+						console.log("Like user", like.get("user"));
+					}, 
+					error: function(like, error) {
+						console.log("like error", error.message);
 					}
-					
-					newList += "<li data-id='"+id+"'>"+
-					comment+"<p>"+username+"</p>"+thumbImg+"</li>";
-					
-				}
-				$("#posts").html(newList);
-				getLikes();
+				});
 			}
-		});
-	}
-	
-	// Load comments on load
-	updateComments();
-	
-	// **********************************************************************************
-	
-	function getLikes() {
-		var Like = Parse.Object.extend("Like");
-		var likeQuery = new Parse.Query(Like);
-		likeQuery.equalTo("user", Parse.User.current());
-		likeQuery.find({
-			success: function(likes) {
-				for (var i in likes) {
-					console.log(likes[i].get("commentId"), likes[i].get("user"));
-					var id = likes[i].get("commentId");
-					$("div[data-id='"+id+"']").find(".like-button").html("Unlike");
-				}
-			}, error: function() {
-				console.log("Like Query Error:"+error.message);
-			}
-		});
-	}
-	
-	// **********************************************************************************
-	
-	function getSpringShowList() {
-		var Profile = Parse.Object.extend("Profile");
-		var query = new Parse.Query(Profile);
-		query.equalTo("user", Parse.User.current());
-		query.find({
-			success: function(results) {
-				console.log("Success get spring show list from profile");
-				updateSpringShowStatus(results[0].get("mySpringShow"));
-			},
-			error: function() {}
-		});
-	}
-	
-	function updateSpringShowStatus(mySpringShow) {
-		console.log("new spring show list:");
-		console.log(mySpringShow);
-		for (var i in mySpringShow) {
-			$("div[data-id='"+mySpringShow[i]+"']").find(".my-springshow-button").html("Remove from My spring show");
+		},
+		error: function(like, error) {
+			console.log("No Like found Error");
 		}
-	}
-	
-	function updateAddToSpringShowFor(id) {
-		$("div[data-id='"+id+"']").find(".my-springshow-button").html("Add to My Spring Show");
-	}
-	
-	function updateRemoveFromSpringShowFor(id) {
-		$("div[data-id='"+id+"']").find(".my-springshow-button").html("Remove from My spring show");
-	}
-	
-	// **********************************************************************************
-	
-	function signup(username, email, password, studentId, firstName, lastName) {
-		console.log("Sign up new User", username, email, password, studentId, firstName, lastName);
-		var user = new Parse.User();
-		user.set("username", username);
-		user.set("password", password);
-		user.set("email", email);
-		
-		user.signUp(null, {
-			success: function(user){
-				console.log("Sign up Success:");
-				createUserProfile(user, studentId, firstName, lastName);
-				displayUser();
-			},
-			error: function(user, error) {
-				console.log("Sign up error:"+error.message);
+	})
+}
+
+
+// **********************************************************************************
+
+
+
+function addToMySpringshow(postId) {
+	var Profile = Parse.Object.extend("Profile");
+	var query = new Parse.Query(Profile);
+	query.equalTo("user", Parse.User.current());
+	query.find({
+		success: function(results) {
+			console.log("Success add to springshow:"+results);
+			console.log("Items in Spring show list:"+results.length);
+			var profile = results[0];
+			console.log(profile.get("mySpringShow"));
+			// Get this users mySpringShow list
+			var mySpringShow = profile.get("mySpringShow");
+			
+			console.log("*** Searching Spring Show List *** for id:"+postId);
+			console.log("*** My Spring Show length:"+mySpringShow.length);
+			
+			// Look through my spring show list for postId
+			for (var i in mySpringShow) {
+				if (mySpringShow[i].id == postId) { // PostId found in list
+					console.log("*** This item already exists in this list remove it"); 
+					// call function to remove item
+					mySpringShow.splice(i, 1);
+					// save
+					profile.save({
+						success: function(results){
+							console.log("**** profile saved new count "+results.get("mySpringShow").length);
+							updateAddToSpringShowFor(postId);
+						}, error: function(error) {
+							console.log("**** profile saved after item removed from myspring show error:"+error.message);
+						}
+					}); 
+					return
+				}
 			}
-		});
-		
-	}
-	
-	function createUserProfile(user, studentId, firstName, lastName) {
-		var Profile = Parse.Object.extend("Profile");
-		var profile = new Profile();
-		
-		profile.set("user", user);
-		profile.set("studentId", studentId);
-		profile.set("firstName", firstName);
-		profile.set("lastName", lastName);
-		
-		profile.set("mySpringShow", []);
-		
-		profile.save(null, {
-			success: function(profile) {
-				console.log("Success New profile for "+user);
-			}, error: function(profile, error) {
-				console.log("Error new profile:"+error.message);
+			
+			console.log("*** That postId is not in this list")
+			// Check if there are less than 6 items
+			if (mySpringShow.length < 6) {
+				console.log("*** less than 6 items in list can add a new one");
+				console.log("*** That id is not in this list add it");
+				var Comment = Parse.Object.extend("Comment");
+				mySpringShow.push(new Comment({id:postId}));
+				profile.save({
+					success: function(results) {
+						console.log("**** Saved profile added new spring show item :"+results.get("mySpringShow").length);
+						updateRemoveFromSpringShowFor(postId);
+					}, error: function(error) {
+						console.log("**** Saving Profile error adding new item:"+error.message);
+					}
+				});
+			} else {
+				console.log("*** There are 6 items in your spring show list already can't add anything new");
 			}
-		});
-	}
+		}, error: function(error) {
+			console.log("Add to springshow user profile find Error:"+error.message);	
+		}
+	});
+}
+
+// **********************************************************************************
+
+// Display all records in the comment table 
+
+function updateComments() {
+	// Get user 
+	var user = Parse.User.current();
 	
+	// Make a new Comment Object - This represents the Comment table
+	var Comment = Parse.Object.extend("Comment");
 	
+	// Query the comment table
+	var query = new Parse.Query(Comment);
+	query.include("author");
 	
-	function login(username, password) {
-		Parse.User.logIn(username, password, {
-			success: function(user){
-				console.log("Login Success:"+user.username);
-				displayUser();
-			},
-			error: function(user, error) {
-				console.log("login error:"+error.message);
+	// Order by date, most recent first
+	query.descending("createdAt");
+	
+	// Limit the number of records returned to postsToLoadCount
+	query.limit(postsToLoadCount);
+	
+	// Run the Query find all
+	query.find({
+		success: function(results) {
+			console.log("Comment Query success:"+results.length);
+			var newList = "";
+			var posts = "";
+			// Loop through all of the results
+			for (var i = 0; i < results.length; i++) {
+				// get each object from results, get the comment field 
+				var obj = results[i];
+				var id = obj.id;
+				var comment 	= obj.get("comment");
+				var date 		= obj.createdAt; // get("createdAt");
+				var author 		= obj.get("author");
+				var username 	= author.get("username"); // attributes.username;
+				var image 		= obj.get("image");
+				var thumbnail 	= obj.get("thumbnail");
+				
+				var postObj = {};
+				postObj.id 			= obj.id
+				postObj.comment 	= obj.get("comment");
+				postObj.date 		= obj.createdAt;
+				postObj.username 	= obj.get("author").get("username");
+				
+				if (obj.get("image") != undefined) {
+					postObj.image 		= obj.get("image").url();
+					postObj.thumbnail 	= obj.get("thumbnail").url();
+				}
+				
+				// ---------------------------------------------------------
+				// Comment Template 
+				// ---------------------------------------------------------	
+				
+				var thumbImg = "";
+				if (thumbnail != undefined) {
+					// Format for image
+					thumbImg = ""+
+					"<a href='"+image.url()+"'>"+
+					"<div><img src='"+thumbnail.url()+"'></a>"+
+					"<div data-id='"+id+"' class='clearfix'>"+
+					"<button class='like-button'>Like</button>"+
+					"<button class='my-springshow-button'>Add to My Spring Show</button>"+
+					"</div>"+
+					"";
+					
+				} else {
+					thumbImg = "";
+				}
+				
+				// posts += tmpl("post_tmpl", postObj);
+				// posts += $("#post_tmpl").jQuote(postObj);
+				
+				// Add user info and meta data
+				newList += "<li data-id='"+id+"'>"+ 	// post id
+				"<p>("+i+")"+comment+"</p>"+			// comment and number of post
+				"<p>Username:"+username+				// Username
+				" Date:"+date+							// Date
+				"</p>"+thumbImg+"</li>"; 				// Thumbnail
+				// ---------------------------------------------------------
 			}
-		});
-	}
-	
-	
-	// Display user name
-	function displayUser() {
-		var user = Parse.User.current()
-		if (user) {
-			console.log("Success User:"+user.get("username"));
-			$("#user-id").html(user.attributes.username);
+			
+			newList += "<li><a id='load-more' href=''>Load more</a></li>"
+			$("#posts").html(newList);
+			getLikes();
 			getSpringShowList();
-		} else {
-			console.log("Error user");
-			$("#user-id").html("");
 		}
-		showHideLoginSignUp();
-	}
-	
-	// Get the user name when loaded
-	displayUser();
-	
-	
-	// Show and hide login signup and logout
-	function showHideLoginSignUp() {
-		if (Parse.User.current()) {
-			$("#logout-container").show();
-			$("#login-container").hide();
-			$("#signup-container").hide();
-		} else {
-			$("#logout-container").hide();
-			$("#login-container").show();
-			$("#signup-container").show();
+	});
+}
+
+// **********************************************************************************
+
+function getLikes() {
+	var Like = Parse.Object.extend("Like");
+	var likeQuery = new Parse.Query(Like);
+	likeQuery.equalTo("user", Parse.User.current());
+	likeQuery.find({
+		success: function(likes) {
+			for (var i in likes) {
+				console.log("Likes comment id:"+likes[i].get("commentId")+"like user:"+likes[i].get("user").id );	
+				var id = likes[i].get("commentId");
+				$("div[data-id='"+id+"']").find(".like-button").html("Unlike");
+			}
+		}, error: function() {
+			console.log("Like Query Error:"+error.message);
 		}
+	});
+}
+
+
+// **********************************************************************************
+
+function showPostsForUser() {
+	var user = Parse.User.current();
+	var Comment = Parse.Object.extend("Comment");
+	var query = new Parse.Query(Comment);
+	query.descending("createdAt");
+	query.equalTo("author", user);
+	
+	query.find({
+		success: function(results) {
+			console.log("Found posts for user");
+			var output = "";
+			for (var i in results) {
+				var obj = results[i];
+				var thumbnail = obj.get("thumbnail");
+				var comment = obj.get("comment");
+				var date = obj.createdAt; // obj.get("createdAt");
+				output += "<li>"+
+				comment+" "+
+				"<img src='"+thumbnail.url()+"'></li>";
+			}
+			$("#user-profile-posts").html(output);
+		}, error: function(error) {
+			console.log("Error finding posts for user:"+error.message);
+		}
+	});
+}
+
+// ---------------------------------------------------------------------
+// Show Posts liked by user 
+// ---------------------------------------------------------------------
+
+function showPostsLikedByUser() {
+	var user = Parse.User.current();
+	var Like = Parse.Object.extend("Like");
+	var query = new Parse.Query(Like);
+	
+	query.descending("createdAt");
+	query.equalTo("user", user);
+	query.include("comment");
+	
+	query.find({
+		success: function(results) {
+			console.log("Found liked posts for user");
+			var output = "";
+			for (var i in results) {
+				var obj = results[i];
+				var commentId = obj.get("commentId");
+				var comment = obj.get("comment");
+				var thumbnail = comment.get("thumbnail");
+				var date = obj.createdAt; // .get("createdAt");
+				// TODO: Fix this template
+				// Create a function that takes a comment and returns a template. 
+				// http://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
+				// http://ejohn.org/blog/javascript-micro-templating/
+				// http://beebole.com/pure/
+				output += "<li>Like id:"+
+				commentId+" "+" Comment:"+comment.id+
+				"</li>";
+			}
+			$("#user-profile-posts").html(output);
+		}, error: function(error) {
+			console.log("Error finding liked posts for user:"+error.message);
+		}
+	});
+}
+
+// **********************************************************************************
+
+// Get Spring show list for user
+
+function getSpringShowList() {
+	// Get the profile
+	var Profile = Parse.Object.extend("Profile");
+	var query = new Parse.Query(Profile);
+	query.equalTo("user", Parse.User.current());
+	query.find({
+		success: function(results) {
+			// Update the My Spring Show buttons
+			console.log("Success get spring show list from profile");
+			updateSpringShowStatus(results[0].get("mySpringShow"));
+		},
+		error: function(error) {
+			console.log("Get Spring Show list error:"+error.message);
+		}
+	});
+}
+
+// ***********************************************************************
+
+function showSpringShowPicksForUser() {
+	console.log("Show Spring show picks by user");
+	var user = Parse.User.current();
+	var Profile = Parse.Object.extend("Profile");
+	var query = new Parse.Query(Profile);
+	query.equalTo("user", user);
+	query.include("mySpringShow");
+	query.find({
+		success: function(results) {
+			console.log("Spring Show for user results");
+			console.log(results);
+			var mySpringShowArray = results[0].get("mySpringShow");
+			for(var i in mySpringShowArray) {
+				console.log(mySpringShowArray[i].id);
+				// TODO: Post template here 
+			}
+		}, error: function(error) {
+			console.log("Spring show for user error:"+error.message);
+		}
+	});
+}
+
+// ***********************************************************************
+
+// Update the status of the my spring show buttons 
+
+function updateSpringShowStatus(mySpringShow) {
+	console.log("new spring show list:");
+	console.log(mySpringShow);
+	for (var i in mySpringShow) {
+		var id = mySpringShow[i].id;
+		console.log("Id: "+id+" is in spring show list mark it with remove...");
+		updateRemoveFromSpringShowFor(id);
 	}
+}
+
+function updateAddToSpringShowFor(id) {
+	console.log("Changing Status to add for "+id);
+	$("div[data-id='"+id+"']").find(".my-springshow-button").html("Add to My Spring Show");
+}
+
+function updateRemoveFromSpringShowFor(id) {
+	console.log("Changing Status to remove for "+id);
+	$("div[data-id='"+id+"']").find(".my-springshow-button").html("Remove from My spring show");
+}
+
+// **********************************************************************************
+
+function signup(username, email, password, studentId, firstName, lastName) {
+	console.log("Sign up new User", username, email, password, studentId, firstName, lastName);
+	var user = new Parse.User();
+	user.set("username", username);
+	user.set("password", password);
+	user.set("email", email);
+	user.set("foo", "bar");
 	
-	showHideLoginSignUp();
-	</script>
-	</body>
+	user.signUp(null, {
+		success: function(user){
+			console.log("Sign up Success:");
+			createUserProfile(user, studentId, firstName, lastName);
+			displayUser();
+		},
+		error: function(user, error) {
+			console.log("Sign up error:"+error.message);
+		}
+	});
 	
-	</html>
+}
+
+
+function createUserProfile(user, studentId, firstName, lastName) {
+	var Profile = Parse.Object.extend("Profile");
+	var profile = new Profile();
+	
+	profile.set("user", user);
+	profile.set("studentId", studentId);
+	profile.set("firstName", firstName);
+	profile.set("lastName", lastName);
+	
+	profile.set("mySpringShow", []);
+	
+	profile.save(null, {
+		success: function(profile) {
+			console.log("Success New profile for "+user);
+		}, error: function(profile, error) {
+			console.log("Error new profile:"+error.message);
+		}
+	});
+}
+
+
+
+function login(username, password) {
+	Parse.User.logIn(username, password, {
+		success: function(user){
+			console.log("Login Success:"+user.username);
+			displayUser();
+		},
+		error: function(user, error) {
+			console.log("login error:"+error.message);
+		}
+	});
+}
+
+function getUserProfileForCurrentUser() {
+	console.log("Get user profile for current user");
+	var user = Parse.User.current();
+	var Profile = Parse.Object.extend("Profile");
+	var query = new Parse.Query(Profile);
+	query.equalTo("user", user);
+	query.find({
+		success: function(results) {
+			console.log("Success get user profile for user");
+			var profile = results[0];
+			var output = "";
+			var firstname = profile.get("firstName");
+			var lastname = profile.get("lastName");
+			var studentId = profile.get("studentId");
+			var createdAt = profile.createdAt;
+			var mySpringShow = profile.get("mySpringShow");
+			// TODO: Format user profile info 
+			output += firstname+" "+lastname+" "+studentId+" "+createdAt+" "+mySpringShow
+			$("#user-profile-info-container").html(output);
+			
+		}, error: function(error) {
+			console.log("Error get user profile for user:"+error.message);
+		}
+	});
+}
+
+
+// Display user name
+function displayUser() {
+	var user = Parse.User.current();
+	if (user) {
+		console.log("Success User:"+user.get("username"));
+		$("#user-id").html(user.attributes.username);
+		getSpringShowList();
+	} else {
+		console.log("Error user");
+		$("#user-id").html("");
+	}
+}
+</script>
+
+
+<!-- *********************************************** 
+	Templates 
+*************************************************-->
+
+
+<!-- ******** Post template ******** -->
+<script type="text/html" id="post_tmpl">
+<li data-id="<%=id%>">
+	<p><%=comment%></p>
+	<p>Username:<%=username%> Date:<%=date%></p>
+	<div>
+		<a href="<%=(image!=undefined ? image)%>">
+			<img src="<%=thumbnail%>">
+		</a>
+		<div data-id="<%=id%>" class="clearfix">
+			<button class="like-button">Unlike</button>
+			<button class="my-springshow-button">Remove from My spring show</button>
+		</div>
+	</div>
+</li>
+</script>
+
+
+</body>
+</html>
