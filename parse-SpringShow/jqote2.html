@@ -1,0 +1,60 @@
+<!doctype html>
+<head>
+	<title>Submit stuff for the Spring show</title>
+	
+	<meta charset="utf-8">
+	<meta name="description" content="My Parse App">
+	<meta name="viewport" content="width=device-width">
+	
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/styles.css">
+	
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="jquery.jqote2.min.js"></script>
+	
+	
+
+</head>
+<body>
+	
+	<p id="example">???</p>
+	<div id="posts"></div>
+
+<script type="text/x-jqote-template" id="template">
+    <![CDATA[
+    I said <strong><*= this.greet + " " + data[j].who *></strong> !!!
+    <* out = out.replace(/John/, 'World'); *>
+    ]]>
+</script>
+
+<script type="text/html" id="post-tmpl">
+<![CDATA[
+<li data-id="<%=this.id%>">
+	<p><%=this.comment%></p>
+	<p>Username:<%=this.username%> Date:<%=this.date%></p>
+	<div>
+		<a href="<%=this.image%>" class="<%=this.hasthumb%">
+			<img src="<%=this.thumbnail%>">
+		</a>
+		<div data-id="<%=this.id%>" class="clearfix">
+			<button class="like-button">Like</button>
+			<button class="my-springshow-button">Add to My Spring Show</button>
+		</div>
+	</div>
+</li>
+]]>
+</script>
+
+<script type="text/javascript">
+	// let's do some jQote magic
+	$('#example').append(
+		$('#template').jqote({greet: 'Hello', who: 'John'}, '*')
+	);
+	
+	$("#posts").append(
+		$("#post_tmpl").jqote({id:1, comment:"hello world", name:"Joe", url:"http://", src:"path/image"})
+	);
+</script>
+
+</body>
+</html>

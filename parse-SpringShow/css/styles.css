@@ -52,7 +52,7 @@ p {
 }
 
 #refresh {
-	background-image: url(../images/Infin.png);
+	background-image: url(../images/Infin2.png);
 }
 
 #profile {
@@ -65,39 +65,45 @@ p {
 }
 
 /* ****** Like and Spring show buttons ******* */
-#posts button {
+.posts button {
 	padding: 0.5em;
 	margin: 0.5em 0.5em 0 0;
 	float: right;
+	/*width: 48px;
+	height: 48px;*/
+}
+
+.*my-springshow-button {
+	background: url(../images/Ribbon.png) no-repeat center;
 }
 
 
 
 /* ****** Post styles ****** */
-#posts, #posts > li {
+.posts, #posts > li {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-#posts {
+.posts {
 	
 }
 
-#posts > li {
+.posts > li {
 	padding: 1em;
 }
 
 /* Zebra stripes */
-#posts > li:nth-child(2n) {
+.posts > li:nth-child(2n) {
 	background: #eee;
 }
 
-#posts > li:nth-child(2n+1) {
+.posts > li:nth-child(2n+1) {
 	background: #ccc;
 }
 
-#posts img {
+.posts img {
 	display: block;
 	margin: auto;
 	width: 100%;
@@ -105,12 +111,12 @@ p {
 	height: auto;
 }
 
-/* user status */
+/*** user status ***/
 #user-status {
 	margin: 0.5em;
 }
 
-/* Comment form */
+/*** Comment form ***/
 #comment-form-container {
 	margin: 0.5em;
 }
@@ -119,8 +125,6 @@ p {
 	padding: 0.5em;
 	width: calc(100% - 1em);
 }
-
-
 
 .clearfix {
 	overflow: auto;

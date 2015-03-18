@@ -1,0 +1,35 @@
+<!doctype html>
+<head>
+	<title>Submit stuff for the Spring show</title>
+	
+	<meta charset="utf-8">
+	<meta name="description" content="My Parse App">
+	<meta name="viewport" content="width=device-width">
+	
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/styles.css">
+	
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="mustache.min.js"></script>
+	
+	
+
+</head>
+<body>
+<script>
+	var view = {
+		title: "Joe",
+		calc: function () {
+			return 2 + 4;
+		}
+	};
+	var output = Mustache.render("{{title}} spends {{calc}}", view);
+</script>
+
+<div id="target">Loading...</div>
+	<script id="template" type="x-tmpl-mustache">
+	Hello {{ name }}!
+</script>
+
+</body>
+</html>
