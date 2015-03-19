@@ -4,7 +4,9 @@
 	
 	<meta charset="utf-8">
 	<meta name="description" content="My Parse App">
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+	<meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
 	
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/styles.css">
@@ -38,6 +40,7 @@ div.box
 </head>
 <body>
 	<div id="main" class="box">
+	
 		<!-- Navigation bar -->
 		<div id="navigation-bar">
 			<h1 id="title"><a href="">Spring Show</a></h1>
@@ -46,17 +49,18 @@ div.box
 			<a class="bar-button" id="new-post" href="">new</a>
 		</div>
 		
+		<!-- User Profile Container -->
 		<div id="user-profile-container" class="screen">
 			<p>User: <span id="user-id"></span></p>
 			<p>Number of posts: <span class="post-count"></span></p>
 			<p>Likes: <span class="like-count"></span></p>
 			<div id="user-profile-info-container"></div>
 			<div id="logout-container">
-				<button id="logout">Log out</button>
+				<p><button id="logout">Log out</button></p>
 			</div>
-			<p><a id="show-user-posts" href="">Posts</a></p>
-			<p><a id="show-user-likes" href="">Liked</a></p>
-			<p><a id="show-user-spring-show" href="">Spring Show</a></p>
+			<p><a class="list-button" id="show-user-posts" href="#user-profile-posts">Posts</a></p>
+			<p><a class="list-button" id="show-user-likes" href="#user-profile-posts">Liked</a></p>
+			<p><a class="list-button" id="show-user-spring-show" href="#user-profile-posts">Spring Show</a></p>
 			
 			<div id="user-profile-posts-container">
 				<ul id="user-profile-posts" class="posts">
@@ -73,10 +77,8 @@ div.box
 		<div id="login-container" class="screen">
 			<h1>Login</h1>
 			<form id="login">
-				<p><label>name</label></p>
-				<p><input id="login-name" type="text"></p>
-				<p><label>password</label></p>
-				<p><input id="login-password" type="password"></p>
+				<p><input id="login-name" type="text" placeholder="user name"></p>
+				<p><input id="login-password" type="password" placeholder="password"></p>
 				<p><input type="submit"></p>
 			</form>
 			<p><a id="show-signup" href="">Sign Up</a></p>
@@ -93,7 +95,7 @@ div.box
 				<p><label>password</label></p>
 				<p><input id="signup-password" type="password"></p>
 				<p><label>Student ID</label></p>
-				<p><input type="number" id="student-id-input"></p>
+				<p><input type="text" id="student-id-input"></p>
 				<p><label>First Name</label></p>
 				<p><input type="text" id="first-name-input"></p>
 				<p><label>Last Name</label></p>
@@ -111,11 +113,10 @@ div.box
 					<p><textarea id="comment" placeholder="Comment"></textarea></p>
 				</div>
 				<div>
-					<p><label>Upload Image</label></p>
 					<p><input type="file" id="input-file"></p>
 					<small>File size limit: 10MB</small>
 				</div>
-				<p><input type="submit"></p>
+				<p><input class="" id="comment-submit-button" type="submit"></p>
 			</form>
 		</div>
 		
@@ -284,6 +285,7 @@ $(function() {
 	
 	$("#show-signup").click(function(event){
 		event.preventDefault();
+		// TODO: Fix sign up thing
 		showSignup();
 	});
 	
@@ -326,19 +328,19 @@ $(function() {
 	// User Profile 
 	// -------------------------------------------------------
 	$("#user-profile-container").on("click", "#show-user-posts", function(event){
-		event.preventDefault();
+		// event.preventDefault();
 		console.log("Show Posts for user");
 		showPostsForUser();
 	});
 	
 	$("#user-profile-container").on("click", "#show-user-likes", function(event){
-		event.preventDefault();
+		// event.preventDefault();
 		console.log("Show Posts liked by user");
 		showPostsLikedByUser();
 	});
 	
 	$("#user-profile-container").on("click", "#show-user-spring-show", function(event){
-		event.preventDefault();
+		// event.preventDefault();
 		console.log("Show Posts liked by user");
 		showSpringShowPicksForUser();
 	});
@@ -503,7 +505,6 @@ function like(postId) {
 // **********************************************************************************
 
 
-
 function addToMySpringshow(postId) {
 	var Profile = Parse.Object.extend("Profile");
 	var query = new Parse.Query(Profile);
@@ -611,9 +612,11 @@ function updateComments() {
 function getTemplateWith(post) {
 	var tmpl_obj = {};
 	tmpl_obj.id = post.id;
-	tmpl_obj.author = post.get("author.name");
+	tmpl_obj.username = post.get("author").get("username");
 	tmpl_obj.comment = post.get("comment");
-	console.log(post.get("image"))
+	
+	console.log(tmpl_obj.username);
+	
 	if (post.get("image")) {
 		tmpl_obj.image = post.get("image").url();
 	} else {
@@ -678,6 +681,8 @@ function showPostsForUser() {
 				output += getTemplateWith(results[i]);
 			}
 			$("#user-profile-posts").html(output);
+			getLikes();
+			getSpringShowList();
 		}, error: function(error) {
 			console.log("Error finding posts for user:"+error.message);
 		}
@@ -710,6 +715,8 @@ function showPostsLikedByUser() {
 			}
 			// TODO: Update Like and My Spring Show Buttons
 			$("#user-profile-posts").html(output);
+			getLikes();
+			getSpringShowList();
 		}, error: function(error) {
 			console.log("Error finding liked posts for user:"+error.message);
 		}
@@ -764,6 +771,8 @@ function showSpringShowPicksForUser() {
 			}
 			// TODO: Update Like and My Spring Show buttons
 			$("#user-profile-posts").html(output);
+			getLikes();
+			getSpringShowList();
 		}, error: function(error) {
 			console.log("Spring show for user error:"+error.message);
 		}
@@ -804,13 +813,15 @@ function signup(username, email, password, studentId, firstName, lastName) {
 	user.set("username", username);
 	user.set("password", password);
 	user.set("email", email);
-	user.set("foo", "bar");
+	// user.set("foo", "bar");
+	// user.set("hello", "world");
 	
 	user.signUp(null, {
 		success: function(user){
 			console.log("Sign up Success:");
 			createUserProfile(user, studentId, firstName, lastName);
-			displayUser();
+			setLoginStatus();
+			showAndRefreshPosts();
 		},
 		error: function(user, error) {
 			console.log("Sign up error:"+error.message);
@@ -880,9 +891,11 @@ function getUserProfileForCurrentUser() {
 			var studentId = profile.get("studentId");
 			var createdAt = profile.createdAt;
 			var mySpringShow = profile.get("mySpringShow");
+			
 			// TODO: Format user profile info 
 			output += firstname+" "+lastname+" "+studentId+" "+createdAt+" "+mySpringShow
 			$("#user-profile-info-container").html(output);
+			$("#user-id").html(firstname+" "+lastname);
 			
 		}, error: function(error) {
 			console.log("Error get user profile for user:"+error.message);
@@ -893,22 +906,21 @@ function getUserProfileForCurrentUser() {
 </script>
 
 
-<!-- *********************************************** 
-	Templates 
-*************************************************-->
-
+<!-- 	*********************************************** 
+			Templates 
+		*************************************************-->
 
 <!-- ******** Post template ******** -->
 <script type="text/html" id="post-tmpl">
 <![CDATA[
 <li data-id="<%=this.id%>">
 	<p><%=this.comment%></p>
-	<p>Username:<%=this.username%> Date:<%=this.date%></p>
+	<p>Username: <%=this.username%> Date: <%=this.date%></p>
 	<div>
 		<a href="<%=this.image%>" class="<%=this.hasthumb%>">
 			<img src="<%=this.thumbnail%>">
 		</a>
-		<div data-id="<%=this.id%>" class="clearfix">
+		<div data-id="<%=this.id%>" class="clearfix post-buttons-container">
 			<button class="like-button">Like</button>
 			<button class="my-springshow-button">Add to My Spring Show</button>
 		</div>
@@ -916,7 +928,6 @@ function getUserProfileForCurrentUser() {
 </li>
 ]]>
 </script>
-
 
 </body>
 </html>
