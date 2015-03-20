@@ -129,6 +129,15 @@ div.box
 		
 	</div>
 	
+	<div id="modal-dialog" class="hide">
+		<div class="progress-indicator">
+			
+		</div>
+	</div>
+	
+	<div id="message-dialog" class="hide">
+		<div class="message">Test Message</div>
+	</div>
 <!-- ================================================================================ -->
 
 <script type="text/javascript">
@@ -374,6 +383,9 @@ $(function() {
 		showAndRefreshPosts();
 	});
 	
+	$("#modal-dialog").click(function(event){
+		event.stopPropagation();
+	});
 	
 	// --------------------------------------------------
 	// Initialize 
@@ -387,6 +399,7 @@ $(function() {
 // Add a post - This uploads the file
 function addPost() {
 	// Get the file to upload
+	showLoading();
 	var fileUploadElement = $("#input-file")[0];
 	var filepath = $("#input-file").val();
 	var filename = filepath.split('\\').pop()
@@ -402,6 +415,7 @@ function addPost() {
 			saveComment(parseFile);
 		}, function(error) {
 			console.log("ParseFile Error:"+error.message);
+			hideLoading();
 		});
 	} else {
 		// Else if no file just upload a post
@@ -436,6 +450,7 @@ function saveComment(file) {
 			console.log("New Comment added:"+comment.id);	// If successful post a message 
 			// updateComments(); 	// Update the comment list
 			showAndRefreshPosts(); 	// Show the posts container and refresh
+			hideLoading();
 		}, 	
 		error: function(comment, error) {
 			// Post a message if there's an error 
@@ -825,6 +840,7 @@ function signup(username, email, password, studentId, firstName, lastName) {
 		},
 		error: function(user, error) {
 			console.log("Sign up error:"+error.message);
+			showMessage("Could not sign in error:"+error.message);
 		}
 	});
 	
@@ -845,8 +861,10 @@ function createUserProfile(user, studentId, firstName, lastName) {
 	profile.save(null, {
 		success: function(profile) {
 			console.log("Success New profile for "+user);
+			showMessage("New user profile created");
 		}, error: function(profile, error) {
-			console.log("Error new profile:"+error.message);
+			// console.log("Error new profile:"+error.message);
+			showMessage("Could not create user profile error:"+error.message);
 		}
 	});
 }
@@ -859,9 +877,11 @@ function login(username, password) {
 			console.log("Login Success:"+user.username);
 			setLoginStatus();
 			showAndRefreshPosts();
+			showMessage("Thanks for logging in");
 		},
 		error: function(user, error) {
-			console.log("login error:"+error.message);
+			// console.log("login error:"+error.message);
+			showMessage("Could not login Error:"+error.message);
 		}
 	});
 }
@@ -898,10 +918,30 @@ function getUserProfileForCurrentUser() {
 			$("#user-id").html(firstname+" "+lastname);
 			
 		}, error: function(error) {
-			console.log("Error get user profile for user:"+error.message);
+			// console.log("Error get user profile for user:"+error.message);
+			showMessage("Coule not get user profile, error:"+error.message);
 		}
 	});
 }
+
+function showLoading() {
+	$("#modal-dialog").removeClass("hide");
+}
+
+function hideLoading() {
+	$("#modal-dialog").addClass("hide");
+}
+
+
+function showMessage(message) {
+	$("#message-dialog .message").html(message);
+	$("#message-dialog").removeClass("hide");
+	setTimeout(function() {
+		$("#message-dialog").addClass("hide");
+	}, 2000);
+}
+
+// showMessage("A temporary message");
 
 </script>
 
