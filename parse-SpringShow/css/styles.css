@@ -1,3 +1,10 @@
+/*  
+	orange: #f7931e
+	white: #fff
+	dark gray: #111
+	
+*/
+
 body {
     background: #111;
     margin-top: 80px;
@@ -97,6 +104,7 @@ p {
 	-webkit-appearance: none;
     border-radius: 0;
     background: #ddd;
+    position: relative;
 	/*width: 48px;
 	height: 48px;*/
 }
@@ -105,6 +113,20 @@ p {
 	background: url(../images/Ribbon.png) no-repeat center;
 }
 
+
+/* Like Count Badge */
+span.like-count {
+	position: absolute;
+	right: -10px;
+	top: -10px;
+	background: red;
+	color: white;
+	border-radius: 10px;
+	height: 20px;
+	min-width: 20px;
+	font-size: 12px;
+	line-height: 20px;
+}
 
 
 /* ****** Post styles ****** */
@@ -270,12 +292,27 @@ input[type=submit] {
 	width: calc(100% - 4em);
 	padding: 1em;
 	border-radius: 20px;
-	background: rgba(255, 255, 255, 0.5);
+	background: rgba(255, 255, 255, 0.75);
 	position: absolute;
 	left: 50%;
 	top: 50%;
 	margin: calc(1em - 50%);
+	text-align: center;
 }
+
+
+/* *** Load More Link *** */ 
+#load-more {
+	display: block;
+	color: #fff;
+	text-align: center;
+	padding: 1em;
+	-webkit-boxsizing: border-box;
+	background: #f7931e;
+}
+
+
+
 
 
 

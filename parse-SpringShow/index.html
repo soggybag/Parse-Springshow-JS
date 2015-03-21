@@ -16,7 +16,18 @@
 	<script src="jquery.jqote2.min.js"></script>
 
 <!-- 
-Structure 
+
+TODO: 
+	Profile likes and my spring lists should remove posts if the like or my springshow 
+	button is pressed. 
+	
+	Add Spring show badge in upper left of image for items in your spring show list. 
+	
+	Add a button to show posts with the most likes.
+
+
+
+Main Page Structure:
 
 div.box
 	div#navigation-bar
@@ -35,6 +46,20 @@ div.box
 	div#signup-container
 	div#posts-container
 
+
+Post template structure:
+
+li data-id
+	p comment
+	p Username: Date:
+	div
+		a.hasthumb
+			img
+		div.post-buttons-container data-id
+			button.like-button
+				span.like-count
+			button.my-springshow-button
+			
 -->
 
 </head>
@@ -197,6 +222,7 @@ function showProfile() {
 	console.log("show profile:"+Parse.User.current());
 	var user = Parse.User.current();
 	if (user) {
+		getUserProfileForCurrentUser();
 		showScreen("#user-profile-container");
 	} else {
 		showScreen("#login-container");
@@ -303,13 +329,19 @@ $(function() {
 	// --------------------------------------------------------
 	$("#posts").on("click", ".like-button", function(event) {
 		var postId = $(this).parent().attr("data-id");
-		console.log("liking post:", postId);
+		// console.log("liking post:", postId);
 		like(postId);
-		if ($(this).html() == "Like") {
-			$(this).html("Unlike");
+		var likeTextSpan = $(this).find(".like-text");
+		var likeCountSpan = $(this).find(".like-count");
+		var likeCount = Number(likeCountSpan.html());
+		if (likeTextSpan.html() == "Like") {
+			likeTextSpan.html("Unlike");
+			likeCount ++;
 		} else {
-			$(this).html("Like");
+			likeTextSpan.html("Like");
+			likeCount --;
 		}
+		likeCountSpan.html(likeCount);
 	});
 	
 	// --------------------------------------------------------
@@ -411,7 +443,7 @@ function addPost() {
 		var parseFile = new Parse.File(filename, file);
 		
 		parseFile.save().then(function() {
-			console.log("ParseFile Success");
+			// console.log("ParseFile Success");
 			saveComment(parseFile);
 		}, function(error) {
 			console.log("ParseFile Error:"+error.message);
@@ -447,7 +479,7 @@ function saveComment(file) {
 	// Save the new comment
 	comment.save(null, {
 		success: function(comment) {
-			console.log("New Comment added:"+comment.id);	// If successful post a message 
+			// console.log("New Comment added:"+comment.id);	// If successful post a message 
 			// updateComments(); 	// Update the comment list
 			showAndRefreshPosts(); 	// Show the posts container and refresh
 			hideLoading();
@@ -472,8 +504,6 @@ function like(postId) {
 	likeQuery.equalTo("commentId", postId);
 	
 	// TODO: *************** 
-	// Fix this to save a pointer to a Comment
-	// Must add and destroy via Comment pointer
 	
 	likeQuery.find({
 		success: function(likes) {
@@ -483,7 +513,18 @@ function like(postId) {
 				for (var i in likes) {
 					likes[i].destroy({
 						success: function() { 
-							console.log("Like destroyed") 
+							// console.log("Like destroyed") ;
+							// decrement comment.likes
+							var Comment = Parse.Object.extend("Comment");
+							var comment = new Comment({id:postId});
+							comment.increment("likes", -1); // obj.decrement("field") doesn't work?
+							comment.save({
+								success: function() {
+									// console.log(">>> decrement likes success");
+								}, error: function(error) {
+									console.log(">>> decrement likes error:"+error.message);
+								}
+							});
 						},
 						error: function() { 
 							console.log("Like Destroy error"); 
@@ -491,18 +532,21 @@ function like(postId) {
 					});
 				}
 			} else {
-				console.log("no Like found, add one!");
+				// console.log("no Like found, add one!");
 				var Like = Parse.Object.extend("Like");
 				var like = new Like();
 				like.set("user", Parse.User.current());
 				like.set("commentId", postId);					// Sets commentId as String???
 				var Comment = Parse.Object.extend("Comment");	
-				like.set("comment", new Comment({id:postId})); // set comment to pointer
+				var comment = new Comment({id:postId})
+				like.set("comment", comment); // set comment to pointer
 				like.save(null, {
 					success: function(like) {
-						console.log("Like success", like.id);
-						console.log("Like commentID:", like.get("commentId"));
-						console.log("Like user", like.get("user"));
+						// console.log("Like success", like.id);
+						// console.log("Like commentID:", like.get("commentId"));
+						// console.log("Like user", like.get("user"));
+						comment.increment("likes");
+						comment.save();
 					}, 
 					error: function(like, error) {
 						console.log("like error", error.message);
@@ -519,33 +563,23 @@ function like(postId) {
 
 // **********************************************************************************
 
-
 function addToMySpringshow(postId) {
 	var Profile = Parse.Object.extend("Profile");
 	var query = new Parse.Query(Profile);
 	query.equalTo("user", Parse.User.current());
 	query.find({
 		success: function(results) {
-			console.log("Success add to springshow:"+results);
-			console.log("Items in Spring show list:"+results.length);
 			var profile = results[0];
-			console.log(profile.get("mySpringShow"));
-			// Get this users mySpringShow list
 			var mySpringShow = profile.get("mySpringShow");
-			
-			console.log("*** Searching Spring Show List *** for id:"+postId);
-			console.log("*** My Spring Show length:"+mySpringShow.length);
-			
 			// Look through my spring show list for postId
 			for (var i in mySpringShow) {
 				if (mySpringShow[i].id == postId) { // PostId found in list
-					console.log("*** This item already exists in this list remove it"); 
-					// call function to remove item
+					// console.log("*** This item already exists in this list remove it"); 
 					mySpringShow.splice(i, 1);
 					// save
 					profile.save({
 						success: function(results){
-							console.log("**** profile saved new count "+results.get("mySpringShow").length);
+							// console.log("**** profile saved new count "+results.get("mySpringShow").length);
 							updateAddToSpringShowFor(postId);
 						}, error: function(error) {
 							console.log("**** profile saved after item removed from myspring show error:"+error.message);
@@ -564,7 +598,7 @@ function addToMySpringshow(postId) {
 				mySpringShow.push(new Comment({id:postId}));
 				profile.save({
 					success: function(results) {
-						console.log("**** Saved profile added new spring show item :"+results.get("mySpringShow").length);
+						// console.log("**** Saved profile added new spring show item :"+results.get("mySpringShow").length);
 						updateRemoveFromSpringShowFor(postId);
 					}, error: function(error) {
 						console.log("**** Saving Profile error adding new item:"+error.message);
@@ -572,6 +606,7 @@ function addToMySpringshow(postId) {
 				});
 			} else {
 				console.log("*** There are 6 items in your spring show list already can't add anything new");
+				showMessage("There are 6 items in your spring show list already can't add anything new");
 			}
 		}, error: function(error) {
 			console.log("Add to springshow user profile find Error:"+error.message);	
@@ -584,7 +619,7 @@ function addToMySpringshow(postId) {
 // Display all records in the comment table 
 
 function updateComments() {
-	// Get user 
+	// Get user
 	var user = Parse.User.current();
 	
 	// Make a new Comment Object - This represents the Comment table
@@ -603,7 +638,7 @@ function updateComments() {
 	// Run the Query find all
 	query.find({
 		success: function(results) {
-			console.log("Comment Query success:"+results.length);
+			// console.log("Comment Query success:"+results.length);
 			var newList = "";
 			var posts = "";
 			// Loop through all of the results
@@ -629,8 +664,9 @@ function getTemplateWith(post) {
 	tmpl_obj.id = post.id;
 	tmpl_obj.username = post.get("author").get("username");
 	tmpl_obj.comment = post.get("comment");
+	tmpl_obj.likes = post.get("likes");
 	
-	console.log(tmpl_obj.username);
+	// console.log("Like count for post:"+tmpl_obj.likes);
 	
 	if (post.get("image")) {
 		tmpl_obj.image = post.get("image").url();
@@ -663,10 +699,9 @@ function getLikes() {
 	likeQuery.find({
 		success: function(likes) {
 			for (var i in likes) {
-				
-				console.log("Likes comment id:"+likes[i].get("commentId")+"like user:"+likes[i].get("user").id );	
+				// console.log("Likes comment id:"+likes[i].get("commentId")+"like user:"+likes[i].get("user").id );	
 				var id = likes[i].get("commentId");
-				$("div[data-id='"+id+"']").find(".like-button").html("Unlike");
+				$("div[data-id='"+id+"']").find(".like-text").html("Unlike");
 			}
 		}, error: function() {
 			console.log("Like Query Error:"+error.message);
@@ -690,7 +725,7 @@ function showPostsForUser() {
 	
 	query.find({
 		success: function(results) {
-			console.log("Found posts for user");
+			// console.log("Found posts for user");
 			var output = "";
 			for (var i in results) {
 				output += getTemplateWith(results[i]);
@@ -722,7 +757,7 @@ function showPostsLikedByUser() {
 	
 	query.find({
 		success: function(results) {
-			console.log("Found liked posts for user");
+			// console.log("Found liked posts for user");
 			var output = "";
 			for (var i in results) {
 				// TODO: Fix this template results object is not right
@@ -754,7 +789,7 @@ function getSpringShowList() {
 	query.find({
 		success: function(results) {
 			// Update the My Spring Show buttons
-			console.log("Success get spring show list from profile");
+			// console.log("Success get spring show list from profile");
 			updateSpringShowStatus(results[0].get("mySpringShow"));
 		},
 		error: function(error) {
@@ -777,8 +812,8 @@ function showSpringShowPicksForUser() {
 	query.include("mySpringShow");
 	query.find({
 		success: function(results) {
-			console.log("Spring Show for user results");
-			console.log(results);
+			// console.log("Spring Show for user results");
+			// console.log(results);
 			var mySpringShowArray = results[0].get("mySpringShow");
 			var output = "";
 			for(var i in mySpringShowArray) {
@@ -805,18 +840,18 @@ function updateSpringShowStatus(mySpringShow) {
 	console.log(mySpringShow);
 	for (var i in mySpringShow) {
 		var id = mySpringShow[i].id;
-		console.log("Id: "+id+" is in spring show list mark it with remove...");
+		// console.log("Id: "+id+" is in spring show list mark it with remove...");
 		updateRemoveFromSpringShowFor(id);
 	}
 }
 
 function updateAddToSpringShowFor(id) {
-	console.log("Changing Status to add for "+id);
+	// console.log("Changing Status to add for "+id);
 	$("div[data-id='"+id+"']").find(".my-springshow-button").html("Add to My Spring Show");
 }
 
 function updateRemoveFromSpringShowFor(id) {
-	console.log("Changing Status to remove for "+id);
+	// console.log("Changing Status to remove for "+id);
 	$("div[data-id='"+id+"']").find(".my-springshow-button").html("Remove from My spring show");
 }
 
@@ -833,13 +868,13 @@ function signup(username, email, password, studentId, firstName, lastName) {
 	
 	user.signUp(null, {
 		success: function(user){
-			console.log("Sign up Success:");
+			// console.log("Sign up Success:");
 			createUserProfile(user, studentId, firstName, lastName);
 			setLoginStatus();
 			showAndRefreshPosts();
 		},
 		error: function(user, error) {
-			console.log("Sign up error:"+error.message);
+			// console.log("Sign up error:"+error.message);
 			showMessage("Could not sign in error:"+error.message);
 		}
 	});
@@ -860,7 +895,7 @@ function createUserProfile(user, studentId, firstName, lastName) {
 	
 	profile.save(null, {
 		success: function(profile) {
-			console.log("Success New profile for "+user);
+			// console.log("Success New profile for "+user);
 			showMessage("New user profile created");
 		}, error: function(profile, error) {
 			// console.log("Error new profile:"+error.message);
@@ -874,7 +909,7 @@ function createUserProfile(user, studentId, firstName, lastName) {
 function login(username, password) {
 	Parse.User.logIn(username, password, {
 		success: function(user){
-			console.log("Login Success:"+user.username);
+			// console.log("Login Success:"+user.username);
 			setLoginStatus();
 			showAndRefreshPosts();
 			showMessage("Thanks for logging in");
@@ -903,7 +938,7 @@ function getUserProfileForCurrentUser() {
 	query.equalTo("user", user);
 	query.find({
 		success: function(results) {
-			console.log("Success get user profile for user");
+			// console.log("Success get user profile for user");
 			var profile = results[0];
 			var output = "";
 			var firstname = profile.get("firstName");
@@ -911,6 +946,13 @@ function getUserProfileForCurrentUser() {
 			var studentId = profile.get("studentId");
 			var createdAt = profile.createdAt;
 			var mySpringShow = profile.get("mySpringShow");
+			
+			updateMySpringShow(mySpringShow);
+			getPostCountForUser();
+			getLikeCountForUser();
+			$(".user-name").html(user.username);
+			$(".firstname").html(firstname);
+			$(".lastname").html(lastname);
 			
 			// TODO: Format user profile info 
 			output += firstname+" "+lastname+" "+studentId+" "+createdAt+" "+mySpringShow
@@ -923,6 +965,50 @@ function getUserProfileForCurrentUser() {
 		}
 	});
 }
+
+var mySpringShow = [];
+
+function updateMySpringShow(array) {
+	mySpringShow = array;
+	// console.log("My Spring Show Count:"+mySpringShow.length);
+}
+
+
+
+function getPostCountForUser() {
+	var user = Parse.User.current();
+	var Comment = Parse.Object.extend("Comment");
+	var query = new Parse.Query(Comment);
+	query.include(["author.username"]);
+	query.equalTo("author", user);
+	query.count({
+		success: function(count) {
+			// console.log(user.username+" has "+count+" posts");
+			$(".post-count").html(count);
+		}, error: function(error) {
+			console.log("user post count error:"+error.message);
+		}
+	});
+}
+
+function getLikeCountForUser() {
+	var user = Parse.User.current();
+	var Like = Parse.Object.extend("Like");
+	var query = new Parse.Query(Like);
+	query.equalTo("user", user);
+	query.count({
+		success: function(count) {
+			// console.log("Like count for user:"+count);
+			$(".like-count").html(count);
+		}, error: function(error) {
+			console.log("Error counting likes:"+error.message);
+		}
+	});
+}
+
+
+
+// *************************************************************************************
 
 function showLoading() {
 	$("#modal-dialog").removeClass("hide");
@@ -938,7 +1024,7 @@ function showMessage(message) {
 	$("#message-dialog").removeClass("hide");
 	setTimeout(function() {
 		$("#message-dialog").addClass("hide");
-	}, 2000);
+	}, 3000);
 }
 
 // showMessage("A temporary message");
@@ -946,9 +1032,9 @@ function showMessage(message) {
 </script>
 
 
-<!-- 	*********************************************** 
-			Templates 
-		*************************************************-->
+<!-- ************************************************* 
+						Templates 
+	 ************************************************* -->
 
 <!-- ******** Post template ******** -->
 <script type="text/html" id="post-tmpl">
@@ -961,7 +1047,10 @@ function showMessage(message) {
 			<img src="<%=this.thumbnail%>">
 		</a>
 		<div data-id="<%=this.id%>" class="clearfix post-buttons-container">
-			<button class="like-button">Like</button>
+			<button class="like-button">
+				<span class="like-text">Like</span>
+				<span class="like-count"><%=this.likes%></span>
+			</button>
 			<button class="my-springshow-button">Add to My Spring Show</button>
 		</div>
 	</div>
