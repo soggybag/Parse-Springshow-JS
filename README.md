@@ -17,10 +17,10 @@ Besides Parse, the site makes use of jQuery, and a jQote2 for simple templating.
     * p
       * span.post-count
     * p
-     * span.like-count
+      * span.like-count
   * div#user-profile-info-container
   * div#logout-container
-   * button#logout
+    * button#logout
   * div#login-container
   * div#signup-container
   * div#posts-container
