@@ -7,3 +7,20 @@ with a comment. Posts can be "liked". Each user has a personal Spring Show list 
 favorite posts. 
 
 Besides Parse, the site makes use of jQuery, and a jQote2 for simple templating. 
+
+*div#main.box
+**div#navigation-bar
+**div#user-status
+**div#user-profile-container
+***p
+****span#user-id
+***p
+****span.post-count
+***p
+****span.like-count
+**div#user-profile-info-container
+**div#logout-container
+***button#logout
+**div#login-container
+**div#signup-container
+**div#posts-container
