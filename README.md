@@ -10,11 +10,11 @@ Besides Parse, the site makes use of jQuery, and a jQote2 for simple templating.
 
 * div#main.box
 * * div#navigation-bar
-**div#user-status
-**div#user-profile-container
-***p
-****span#user-id
-***p
+* * div#user-status
+* * div#user-profile-container
+* * * p
+* * * * span#user-id
+* * * p
 ****span.post-count
 ***p
 ****span.like-count
