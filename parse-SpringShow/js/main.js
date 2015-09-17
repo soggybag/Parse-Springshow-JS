@@ -46,6 +46,17 @@ var postsToLoadCount = 10;
 
 // Compile templates
 var postTemplate = Handlebars.compile($("#post-tmpl").html());
+/*
+	Compile a Handlebars template before use by passing the text of the 
+	template to Handlebars.compile(). Here I get the text of the template 
+	by it's id name and pass it into the function. 
+	
+	Compiling a template creates a function that will generate the template 
+	text. This function accepts an object with properties that are inserted 
+	into the template.
+	
+	See the function: getTemplateWith(post) below. 
+*/
 
 
 // **********************************************************************************
@@ -500,8 +511,11 @@ function updateComments() {
 }
 
 
-// This function receives a Parse results object and 
-// spits out a standar post template with object props
+/* 
+	This function receives a Parse results object and 
+	returns the template text populated with properties 
+	from that post. 
+*/
 
 function getTemplateWith(post) {
 	var tmpl_obj = {};
@@ -537,7 +551,7 @@ function getTemplateWith(post) {
     
 	tmpl_obj.date = formattedDate; // +" "+post.createdAt;
     
-	
+    // Make HTML from the compiled template function and return that. 
 	return postTemplate(tmpl_obj);
 }
 

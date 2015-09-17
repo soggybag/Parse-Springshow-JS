@@ -1,0 +1,248 @@
+<!doctype html>
+<head>
+	<title>Submit stuff for the Spring show</title>
+	
+	<meta charset="utf-8">
+	<meta name="description" content="My Parse App">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+	<meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+	
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/styles.css">
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="http://www.parsecdn.com/js/parse-1.3.4.min.js"></script>
+	<script src="js/handlebars-v4.0.2.js"></script>
+
+<!-- 
+
+TODO: 
+	Profile likes and my spring lists should remove posts if the like or my springshow 
+	button is pressed. 
+	
+	Add Spring show badge in upper left of image for items in your spring show list. 
+	
+	Add a button to show posts with the most likes.
+
+
+
+Main Page Structure:
+
+div#main.box
+	div#navigation-bar
+	div#user-status
+	div#user-profile-container
+		p
+			span#user-id
+		p
+			span.post-count
+		p
+			span.like-count
+		div#user-profile-info-container
+		div#logout-container
+			button#logout
+	div#login-container
+	div#signup-container
+	div#posts-container
+
+
+Post template structure:
+
+li data-id
+	p comment
+	p Username: Date:
+	div
+		a.hasthumb
+			img
+		div.post-buttons-container data-id
+			button.like-button
+				span.like-count
+			button.my-springshow-button
+			
+-->
+
+</head>
+<body>
+	<div id="main" class="box">
+	
+		<!-- Navigation bar -->
+		<div id="navigation-bar">
+			<h1 id="title"><a href="">Spring Show 2015</a></h1>
+			<a class="bar-button" id="refresh" href="">refresh</a>
+			<a class="bar-button" id="profile" href="">profile</a>
+			<a class="bar-button" id="new-post" href="">new</a>
+		</div>
+		
+        
+        
+        
+        
+        
+    <!-- User Profile Container -->
+    <div id="user-profile-container" class="screen">
+        <div class="color-2">
+            <p><span class="p-label">User:</span> <span id="user-id"></span></p>
+            <div id="logout-container">
+                <button id="logout">Log out</button>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <!-- 
+        <p><span class="p-label">Number of posts:</span> <span class="post-count"></span></p>
+        <p><span class="p-label">Likes:</span> <span class="like-total"></span></p>
+        <div id="user-profile-info-container"></div>
+        -->
+        <a class="list-button" id="show-user-posts" href="#user-profile-posts">Posts <span class="button-badge"></span></a>
+        <a class="list-button" id="show-user-likes" href="#user-profile-posts">Liked <span class="button-badge"></span></a>
+        <a class="list-button" id="show-user-spring-show" href="#user-profile-posts">
+            Spring Show <span class="small-note">(Maximum 6 items)</span>
+            <span class="button-badge"></span>
+            
+        </a>
+        <!-- <a class="list-button" id="" href="#">Log out</a> -->
+
+        <div id="user-profile-posts-container">
+            <ul id="user-profile-posts" class="posts">
+                <!-- 
+                    Posts in user profile 
+                    Could be liked posts, Spring show posts, 
+                    or user posts 
+                -->
+            </ul>
+        </div>
+    </div>
+		
+        
+        
+        
+        
+        
+		<!-- login -->
+        
+		<div id="login-container" class="screen">
+			<h1>Login</h1>
+			<form id="login">
+				<div><input id="login-name" type="text" placeholder="user name"></div>
+				<div><input id="login-password" type="password" placeholder="password"></div>
+				<div><input id="login-submit-input" type="submit"></div>
+			</form>
+			<p><a id="show-signup" href="">Sign Up</a></p>
+		</div>
+		
+        
+        
+        
+        
+		<!-- sign up -->
+        
+		<div id="signup-container" class="screen">
+			<h1>Sign up</h1>
+			<form id="signup">
+				<!-- <div><label>Username</label></div> -->
+				<div><input id="signup-name" type="text" placeholder="username"></div>
+				<!-- <div><label>email</label></div> -->
+				<div><input id="signup-email" type="email" placeholder="email"></div>
+				<!-- <div><label>password</label></div> -->
+				<div><input id="signup-password" type="password" placeholder="password"></div>
+				<!--
+                <div><label>Student ID</label></div>
+				<div><input type="text" id="student-id-input" placeholder="student id"></div>
+				<div><label>First Name</label></div>
+				<div><input type="text" id="first-name-input" placeholder="first name"></div>
+				<div><label>Last Name</label></div>
+				<div><input type="text" id="last-name-input" placeholder="last name"></div>
+				-->
+				<div><input id="signup-submit-input" type="submit"></div>
+			</form>
+			<p><a id="show-login" href="">Log In</a></p>
+		</div>
+		
+        
+        
+        
+		<!-- comment form -->
+        
+		<div id="comment-form-container" class="screen">
+            <h1>Post</h1>
+			<form id="comment-form" method="post" enctype="multipart/form-data">
+				<div>
+					<textarea id="comment" placeholder="Comment"></textarea>
+				</div>
+				<div>
+					<div><input type="file" id="input-file"></div>
+					<small id="file-size-limit">File size limit: 10MB</small>
+				</div>
+				<div><input class="" id="comment-submit-button" type="submit"></div>
+			</form>
+		</div>
+		
+		<!-- posts container -->
+		<div id="posts-container" class="screen">
+			<ul id="posts" class="posts">
+				<!-- list posts -->
+			</ul>
+		</div>
+		
+	</div>
+	
+	<div id="modal-dialog" class="hide">
+		<div class="progress-indicator">
+			
+		</div>
+	</div>
+	
+	<div id="message-dialog" class="hide">
+		<div class="message">Test Message</div>
+	</div>
+
+<!-- ************************************************* -->
+<!--					Templates 					   -->
+<!-- ************************************************* -->
+
+<!-- 
+	
+	Define a template for handlebars JS. All values are defined 
+	between handle bars {{ and }} 
+	This template is defined a script tag with an id, and 
+	a type of text/x-handlebars-template
+	
+	This template needs to be compiled with JavaScript before
+	it can be used! See main.js. 
+	
+-->
+
+<script id="post-tmpl" type="text/x-handlebars-template">
+	<li data-id="{{id}}">
+		<p class="post-comment">{{comment}}</p>
+		<div class="post-image">
+	    <p class="post-meta"><span class="post-meta-user">{{username}}</span>{{date}}</p>
+			<a href="{{image}}" class="{{hasthumb}}">
+				<img src="{{thumbnail}}">
+			</a>
+		</div>
+	    <div data-id="{{id}}" class="clearfix post-buttons-container">
+	        <button class="my-springshow-button">Add to My Spring Show</button>
+	        <button class="like-button">
+	            <span class="like-text">Like</span>
+	            <span class="like-count">{{likes}}</span>
+	        </button>
+	    </div>
+	</li>
+</script>
+
+
+
+<!-- ================================================================================ -->
+
+<!-- Load Main JS -->
+<script src="js/main.js" type="text/javascript"></script>
+
+<!-- ================================================================================ -->
+
+
+
+</body>
+</html>
