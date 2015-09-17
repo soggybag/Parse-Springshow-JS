@@ -1,171 +1,3 @@
-<!doctype html>
-<head>
-	<title>Submit stuff for the Spring show</title>
-	
-	<meta charset="utf-8">
-	<meta name="description" content="My Parse App">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-	<meta name="viewport"
-        content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
-	
-	<link rel="stylesheet" href="css/reset.css">
-	<link rel="stylesheet" href="css/styles.css">
-	
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script src="http://www.parsecdn.com/js/parse-1.3.4.min.js"></script>
-	<script src="jquery.jqote2.min.js"></script>
-
-<!-- 
-
-TODO: 
-	Profile likes and my spring lists should remove posts if the like or my springshow 
-	button is pressed. 
-	
-	Add Spring show badge in upper left of image for items in your spring show list. 
-	
-	Add a button to show posts with the most likes.
-
-
-
-Main Page Structure:
-
-div#main.box
-	div#navigation-bar
-	div#user-status
-	div#user-profile-container
-		p
-			span#user-id
-		p
-			span.post-count
-		p
-			span.like-count
-		div#user-profile-info-container
-		div#logout-container
-			button#logout
-	div#login-container
-	div#signup-container
-	div#posts-container
-
-
-Post template structure:
-
-li data-id
-	p comment
-	p Username: Date:
-	div
-		a.hasthumb
-			img
-		div.post-buttons-container data-id
-			button.like-button
-				span.like-count
-			button.my-springshow-button
-			
--->
-
-</head>
-<body>
-	<div id="main" class="box">
-	
-		<!-- Navigation bar -->
-		<div id="navigation-bar">
-			<h1 id="title"><a href="">Spring Show</a></h1>
-			<a class="bar-button" id="refresh" href="">refresh</a>
-			<a class="bar-button" id="profile" href="">profile</a>
-			<a class="bar-button" id="new-post" href="">new</a>
-		</div>
-		
-		<!-- User Profile Container -->
-		<div id="user-profile-container" class="screen">
-			<p>User: <span id="user-id"></span></p>
-			<p>Number of posts: <span class="post-count"></span></p>
-			<p>Likes: <span class="like-total"></span></p>
-			<div id="user-profile-info-container"></div>
-			<div id="logout-container">
-				<p><button id="logout">Log out</button></p>
-			</div>
-			<p><a class="list-button" id="show-user-posts" href="#user-profile-posts">Posts</a></p>
-			<p><a class="list-button" id="show-user-likes" href="#user-profile-posts">Liked</a></p>
-			<p><a class="list-button" id="show-user-spring-show" href="#user-profile-posts">Spring Show</a></p>
-			
-			<div id="user-profile-posts-container">
-				<ul id="user-profile-posts" class="posts">
-					<!-- 
-						Posts in user profile 
-						Could be liked posts, Spring show posts, 
-						or user posts 
-					-->
-				</ul>
-			</div>
-		</div>
-		
-		<!-- login -->
-		<div id="login-container" class="screen">
-			<h1>Login</h1>
-			<form id="login">
-				<p><input id="login-name" type="text" placeholder="user name"></p>
-				<p><input id="login-password" type="password" placeholder="password"></p>
-				<p><input type="submit"></p>
-			</form>
-			<p><a id="show-signup" href="">Sign Up</a></p>
-		</div>
-		
-		<!-- sign up -->
-		<div id="signup-container" class="screen">
-			<h1>Sign up</h1>
-			<form id="signup">
-				<p><label>Username</label></p>
-				<p><input id="signup-name" type="text"></p>
-				<p><label>email</label></p>
-				<p><input id="signup-email" type="email"></p>
-				<p><label>password</label></p>
-				<p><input id="signup-password" type="password"></p>
-				<p><label>Student ID</label></p>
-				<p><input type="text" id="student-id-input"></p>
-				<p><label>First Name</label></p>
-				<p><input type="text" id="first-name-input"></p>
-				<p><label>Last Name</label></p>
-				<p><input type="text" id="last-name-input"></p>
-				
-				<p><input type="submit"></p>
-			</form>
-			<p><a id="show-login" href="">Log In</a></p>
-		</div>
-		
-		<!-- comment form -->
-		<div id="comment-form-container" class="screen">
-			<form id="comment-form" method="post" enctype="multipart/form-data">
-				<div>
-					<p><textarea id="comment" placeholder="Comment"></textarea></p>
-				</div>
-				<div>
-					<p><input type="file" id="input-file"></p>
-					<small>File size limit: 10MB</small>
-				</div>
-				<p><input class="" id="comment-submit-button" type="submit"></p>
-			</form>
-		</div>
-		
-		<!-- posts container -->
-		<div id="posts-container" class="screen">
-			<ul id="posts" class="posts">
-				<!-- list posts -->
-			</ul>
-		</div>
-		
-	</div>
-	
-	<div id="modal-dialog" class="hide">
-		<div class="progress-indicator">
-			
-		</div>
-	</div>
-	
-	<div id="message-dialog" class="hide">
-		<div class="message">Test Message</div>
-	</div>
-<!-- ================================================================================ -->
-
-<script type="text/javascript">
 /* 
 
 Todo: 
@@ -209,7 +41,11 @@ Todo:
 // Init Parse with keys
 Parse.initialize("Y11pFemQTSvT81ACSsAH92m31sGHiTDLjGczOZB7", "5Hzk1JhTSLNwd7fO8VkARxMV1plNLdOW206IkHQo");
 
+// Set posts to show per page
 var postsToLoadCount = 10;
+
+// Compile templates
+var postTemplate = Handlebars.compile($("#post-tmpl").html());
 
 
 // **********************************************************************************
@@ -219,7 +55,7 @@ var postsToLoadCount = 10;
 // TODO: Change Bar button from to login Maybe add ? to profile icon image
 
 function showProfile() {
-	console.log("show profile:"+Parse.User.current());
+	// console.log("show profile:"+Parse.User.current());
 	var user = Parse.User.current();
 	if (user) {
 		getUserProfileForCurrentUser();
@@ -237,12 +73,12 @@ function showAndRefreshPosts() {
 
 // Show and hide login signup and logout
 function showLogin() {
-	console.log("Show Login");
+	// console.log("Show Login");
 	showScreen("#login-container");
 }
 
 function showSignup() {
-	console.log("Show Signup");
+	// console.log("Show Signup");
 	showScreen("#signup-container");
 }
 
@@ -291,7 +127,7 @@ $(function() {
 	// Sign up Submit Handler
 	// ------------------------------------------------------------
 	$("#signup").submit(function(event) {
-		console.log("*** Sign in submit ***");
+		// console.log("*** Sign in submit ***");
 		event.preventDefault();
 		var name 		= $("#signup-name").val();
 		var email 		= $("#signup-email").val();
@@ -307,7 +143,7 @@ $(function() {
 	// Log out button
 	// --------------------------------------------------------
 	$("#logout").click(function(){
-		console.log("Log out button");
+		// console.log("Log out button");
 		Parse.User.logOut();
 		setLoginStatus();
 		showProfile();
@@ -348,7 +184,7 @@ $(function() {
 	// My Spring Show Button 
 	// --------------------------------------------------------
 	$("#posts").on("click", ".my-springshow-button", function(event) {
-		console.log("My Spring show button");
+		// console.log("My Spring show button");
 		var postId = $(this).parent().attr("data-id");
 		addToMySpringshow(postId);
 		
@@ -359,7 +195,7 @@ $(function() {
 	// -------------------------------------------------------
 	$("#posts").on("click", "#load-more", function(event) {
 		event.preventDefault();
-		console.log("Load More Posts");
+		// console.log("Load More Posts");
 		// load the next group of images
 		postsToLoadCount += 10;
 		updateComments();
@@ -369,21 +205,29 @@ $(function() {
 	// User Profile 
 	// -------------------------------------------------------
 	$("#user-profile-container").on("click", "#show-user-posts", function(event){
-		// event.preventDefault();
-		console.log("Show Posts for user");
+		event.preventDefault();
+		// console.log("Show Posts for user");
 		showPostsForUser();
+        scrollToProfilePostsContainer();
 	});
+    
+    function scrollToProfilePostsContainer() {
+        var distanceToTop = $("#user-profile-posts-container").position().top;
+        $("body").animate({scrollTop:distanceToTop+"px"}, 400);
+    }
 	
 	$("#user-profile-container").on("click", "#show-user-likes", function(event){
 		// event.preventDefault();
-		console.log("Show Posts liked by user");
+		// console.log("Show Posts liked by user");
 		showPostsLikedByUser();
+        scrollToProfilePostsContainer();
 	});
 	
 	$("#user-profile-container").on("click", "#show-user-spring-show", function(event){
 		// event.preventDefault();
-		console.log("Show Posts liked by user");
+		// console.log("Show Posts liked by user");
 		showSpringShowPicksForUser();
+        scrollToProfilePostsContainer();
 	});
 	
 	
@@ -507,9 +351,9 @@ function like(postId) {
 	
 	likeQuery.find({
 		success: function(likes) {
-			console.log("Search for Likes successful");
+			// console.log("Search for Likes successful");
 			if (likes.length > 0) {
-				console.log("Like found!", likes.length);
+				// console.log("Like found!", likes.length);
 				for (var i in likes) {
 					likes[i].destroy({
 						success: function() { 
@@ -589,11 +433,11 @@ function addToMySpringshow(postId) {
 				}
 			}
 			
-			console.log("*** That postId is not in this list")
+			// console.log("*** That postId is not in this list")
 			// Check if there are less than 6 items
 			if (mySpringShow.length < 6) {
-				console.log("*** less than 6 items in list can add a new one");
-				console.log("*** That id is not in this list add it");
+				// console.log("*** less than 6 items in list can add a new one");
+				// console.log("*** That id is not in this list add it");
 				var Comment = Parse.Object.extend("Comment");
 				mySpringShow.push(new Comment({id:postId}));
 				profile.save({
@@ -605,7 +449,7 @@ function addToMySpringshow(postId) {
 					}
 				});
 			} else {
-				console.log("*** There are 6 items in your spring show list already can't add anything new");
+				// console.log("*** There are 6 items in your spring show list already can't add anything new");
 				showMessage("There are 6 items in your spring show list already can't add anything new");
 			}
 		}, error: function(error) {
@@ -665,23 +509,36 @@ function getTemplateWith(post) {
 	tmpl_obj.username = post.get("author").get("username");
 	tmpl_obj.comment = post.get("comment");
 	tmpl_obj.likes = post.get("likes");
+	tmpl_obj.hasthumb = "no-thumb";
 	
 	// console.log("Like count for post:"+tmpl_obj.likes);
 	
 	if (post.get("image")) {
 		tmpl_obj.image = post.get("image").url();
+		tmpl_obj.hasthumb = "has-thumb";
 	} else {
 		tmpl_obj.image = "";
 	}
+	
 	if (post.get("thumbnail")) {
 		tmpl_obj.thumbnail = post.get("thumbnail").url();
 	} else {
 		tmpl_obj.thumbnail = "";
 	}
 	
-	tmpl_obj.date = post.createdAt;
+    // var dateArray = String(post.createdAt).split(" ");
+    // var formattedDate = dateArray[0]+" "+dateArray[1]+" "+dateArray[2]+" "+dateArray[4];
+    
+    // formatDate(new Date(post.createdAt));
+    
+    var d = formatDate(String(post.createdAt)).split(" ");
+    // console.log(d);
+    var formattedDate = d[0]+" "+d[1]+" "+d[2]+" "+d[3]+" "+d[4]+" "+d[5];
+    
+	tmpl_obj.date = formattedDate; // +" "+post.createdAt;
+    
 	
-	return $('#post-tmpl').jqote(tmpl_obj);
+	return postTemplate(tmpl_obj);
 }
 
 // **********************************************************************************
@@ -805,7 +662,7 @@ function showSpringShowPicksForUser() {
 	if (!user) {
 		return;
 	}
-	console.log("Show Spring show picks by user");
+	// console.log("Show Spring show picks by user");
 	var Profile = Parse.Object.extend("Profile");
 	var query = new Parse.Query(Profile);
 	query.equalTo("user", user);
@@ -836,8 +693,8 @@ function showSpringShowPicksForUser() {
 // Update the status of the my spring show buttons 
 
 function updateSpringShowStatus(mySpringShow) {
-	console.log("new spring show list:");
-	console.log(mySpringShow);
+	// console.log("new spring show list:");
+	// console.log(mySpringShow);
 	for (var i in mySpringShow) {
 		var id = mySpringShow[i].id;
 		// console.log("Id: "+id+" is in spring show list mark it with remove...");
@@ -858,7 +715,7 @@ function updateRemoveFromSpringShowFor(id) {
 // **********************************************************************************
 
 function signup(username, email, password, studentId, firstName, lastName) {
-	console.log("Sign up new User", username, email, password, studentId, firstName, lastName);
+	// console.log("Sign up new User", username, email, password, studentId, firstName, lastName);
 	var user = new Parse.User();
 	user.set("username", username);
 	user.set("password", password);
@@ -931,7 +788,7 @@ function setLoginStatus() {
 }
 
 function getUserProfileForCurrentUser() {
-	console.log("Get user profile for current user");
+	// console.log("Get user profile for current user");
 	var user = Parse.User.current();
 	var Profile = Parse.Object.extend("Profile");
 	var query = new Parse.Query(Profile);
@@ -946,24 +803,44 @@ function getUserProfileForCurrentUser() {
 			var studentId = profile.get("studentId");
 			var createdAt = profile.createdAt;
 			var mySpringShow = profile.get("mySpringShow");
+            
+            // show spring show count
+            $("#show-user-spring-show>.button-badge").html(mySpringShow.length);
 			
 			updateMySpringShow(mySpringShow);
 			getPostCountForUser();
 			getLikeCountForUser();
-			$(".user-name").html(user.username);
-			$(".firstname").html(firstname);
-			$(".lastname").html(lastname);
+            
+            console.log(">>>"+user.get("username"));
+            $("#user-id").html(user.get("username"));
+            
+			// $(".user-name").html(user.username);
+			// $(".firstname").html(firstname);
+			// $(".lastname").html(lastname);
 			
 			// TODO: Format user profile info 
-			output += firstname+" "+lastname+" "+studentId+" "+createdAt+" "+mySpringShow
-			$("#user-profile-info-container").html(output);
-			$("#user-id").html(firstname+" "+lastname);
+			// output += firstname+" "+lastname+" "+studentId+" "+createdAt+" "+mySpringShow
+			// $("#user-profile-info-container").html(output);
+			// $("#user-id").html(firstname+" "+lastname);
 			
 		}, error: function(error) {
 			// console.log("Error get user profile for user:"+error.message);
-			showMessage("Coule not get user profile, error:"+error.message);
+			showMessage("Could not get user profile, error:"+error.message);
 		}
-	});
+	}).then(function(){
+        var Like = Parse.Object.extend("Like");
+        var query = new Parse.Query(Like);
+        query.equalTo("user", Parse.User.current());
+        query.count({
+            success: function(count) {
+                $(".like-total").html(count);
+            }, error: function(error) {
+                console.log("Profile Like Count error:"+error.message);
+            }
+        });
+    }).then(function(){
+        
+    });
 }
 
 var mySpringShow = [];
@@ -985,6 +862,7 @@ function getPostCountForUser() {
 		success: function(count) {
 			// console.log(user.username+" has "+count+" posts");
 			$(".post-count").html(count);
+            $("#show-user-posts>span").html(count);
 		}, error: function(error) {
 			console.log("user post count error:"+error.message);
 		}
@@ -1000,6 +878,7 @@ function getLikeCountForUser() {
 		success: function(count) {
 			// console.log("Like count for user:"+count);
 			$(".like-count").html(count);
+            $("#show-user-likes>span").html(count);
 		}, error: function(error) {
 			console.log("Error counting likes:"+error.message);
 		}
@@ -1027,36 +906,63 @@ function showMessage(message) {
 	}, 3000);
 }
 
+// showMessage("This is a test message");
+
 // showMessage("A temporary message");
+    
+function formatDate(date) {
+    var d = new Date(date);
+    var hh = d.getHours();
+    var m = d.getMinutes();
+    var s = d.getSeconds();
+    var dd = "AM";
+    var h = hh;
+    if (h >= 12) {
+        h = hh-12;
+        dd = "PM";
+    }
+    if (h == 0) {
+        h = 12;
+    }
+    m = m<10?"0"+m:m;
 
-</script>
+    s = s<10?"0"+s:s;
+
+    /* if you want 2 digit hours:
+    h = h<10?"0"+h:h; */
+
+    var pattern = new RegExp("0?"+hh+":"+m+":"+s);
+
+    var replacement = h+":"+m;
+    /* if you want to add seconds
+    replacement += ":"+s;  */
+    replacement += " "+dd;    
+
+    return date.replace(pattern,replacement);
+}
+    
+    
+    
+// ------
+function toggleFullScreen() {
+  var doc = window.document;
+  var docEl = doc.documentElement;
+
+  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    requestFullScreen.call(docEl);
+  }
+  else {
+    cancelFullScreen.call(doc);
+  }
+}
+    
+setTimeout(function(){
+    // toggleFullScreen();
+}, 100);
+    
+window.scrollTo(0, 1);
 
 
-<!-- ************************************************* 
-						Templates 
-	 ************************************************* -->
-
-<!-- ******** Post template ******** -->
-<script type="text/html" id="post-tmpl">
-<![CDATA[
-<li data-id="<%=this.id%>">
-	<p><%=this.comment%></p>
-	<p>Username: <%=this.username%> Date: <%=this.date%></p>
-	<div>
-		<a href="<%=this.image%>" class="<%=this.hasthumb%>">
-			<img src="<%=this.thumbnail%>">
-		</a>
-		<div data-id="<%=this.id%>" class="clearfix post-buttons-container">
-			<button class="like-button">
-				<span class="like-text">Like</span>
-				<span class="like-count"><%=this.likes%></span>
-			</button>
-			<button class="my-springshow-button">Add to My Spring Show</button>
-		</div>
-	</div>
-</li>
-]]>
-</script>
-
-</body>
-</html>

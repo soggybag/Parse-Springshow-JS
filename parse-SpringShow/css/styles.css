@@ -5,23 +5,32 @@
 	
 */
 
+
+/*
+    COLORS
+*/
+
+.color-1 {
+    background: #333;   
+}
+
+
 body {
-    background: #111;
-    margin-top: 80px;
+    background: #F0F0F0;
+    margin-top: 64px;
 }
 
 #main {
 	min-width: 320px;
 }
 
-
 a {
-	color: #f7931e;
+	color: red;
 	text-decoration: none;
 }
 
 a:visited {
-	color: #f7931e;
+	color: red;
 }
 
 p {
@@ -42,7 +51,7 @@ p {
 	padding: 0 0.5em;
 	display: block;
 	float: left;
-	line-height: 80px;
+	line-height: 64px;
 	text-decoration: none;
 	color: #666;
 	font-size: 20px;
@@ -50,15 +59,17 @@ p {
 
 #navigation-bar {
 	position: fixed;
-	background: #000;
+	background: #D8D8D8;
 	width: 100%;
-	height: 80px;
-	margin-top: -80px;
+	height: 64px;
+	margin-top: -64px;
+    z-index: 999;
+    border-bottom: 1px solid #B9B9B9;
 }	
 
 .bar-button {
 	float: right;
-	height: 80px;
+	height: 64px;
 	width: 40px;
 	display: block;
 	background-position: center;
@@ -82,10 +93,12 @@ p {
 
 #refresh {
 	background-image: url(../images/Infin2.png);
+    display: none;
 }
 
 #profile {
 	background-image: url(../images/Student.png);
+    margin-right: 10px;
 }
 
 #new-post {
@@ -96,14 +109,15 @@ p {
 
 /* ****** Like and Spring show buttons ******* */
 .posts button {
-	padding: 0.5em;
-	margin: 0.5em 0.5em 0 0;
-	float: right;
+	padding: 0.5em 1em;
+	margin: 0.5em 2px 0 0;
+	/* float: right; */
 	font-size: .75em;
 	line-height: 1.5em;
 	-webkit-appearance: none;
-    border-radius: 0;
-    background: #ddd;
+    border-radius: 1.5em;
+    border: none;
+    background: #D7D7D7;
     position: relative;
 	/*width: 48px;
 	height: 48px;*/
@@ -117,8 +131,8 @@ p {
 /* Like Count Badge */
 span.like-count {
 	position: absolute;
-	right: -10px;
-	top: -10px;
+	right: -9px;
+    top: -7px;
 	background: red;
 	color: white;
 	border-radius: 10px;
@@ -146,31 +160,41 @@ span.like-count {
 
 /* *** Zebra stripes *** */
 .posts > li:nth-child(2n) {
-	background: #111;
+	background: #F2F2F2 ;
 }
 
 .posts > li:nth-child(2n+1) {
-	background: #222;
+	background: #F0F0F0;
 }
 
-.screen p, .screen h1 {
-	color: #666;
-	padding: 1em;
+.screen p, .screen h1, small {
+	color: #9E9E9E;
+	padding: 0.5em;
 	max-width: calc(640px - 1em);
 	margin: auto;
 }
 
+.screen h1 {
+    font-size: 150%;
+}
+
 .posts > li p {
-	color: #666;
+	color: #999;
 	padding: 1em;
 	max-width: calc(640px - 1em);
 	margin: auto;
 }
 
 .posts > li .post-buttons-container {
-	padding: 1em;
+    padding: 0.25em 1em 0.75em 1em;
 	max-width: calc(640px - 1em);
 	margin: auto;
+    background: #E9E9E9;
+    border-bottom: 1px solid #B1B1B1;
+}
+
+.post-comment {
+    /*background: #333;*/   
 }
 
 .posts img {
@@ -179,6 +203,29 @@ span.like-count {
 	width: 100%;
 	max-width: 640px;
 	height: auto;
+}
+
+.post-image {
+    position: relative;
+    min-height: 40px;
+    border-bottom: 1px solid #DCDCDC;
+}
+
+.post-meta {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 12px;
+    color: #BCBCBC !important;
+    background: rgba(0, 0, 0, 0.5);
+    border-top-left-radius: 6px;
+    padding: .5em 1em !important;
+}
+
+
+.post-meta-user {
+    font-weight: bold;
+    color: #ddd;
 }
 
 /*** user status ***/
@@ -194,12 +241,26 @@ span.like-count {
 }
 
 #comment-form textarea {
-	padding: 0.5em;
-	width: calc(100% - 1em);
-	background: #666;
-	padding: 0.5em;
-	width: calc(100% - 2em);
-	color: #ddd;
+    background: #FFFFFF;
+    padding: 0.5em;
+    width: calc(100% - 1em);
+    color: #666;
+    height: 3.5em;
+    border: 1px solid #666;
+    border-radius: 6px;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}
+
+#login-name, #login-password {
+    background: #fff;
+    padding: 0.5em;
+    width: calc(100% - 2em);
+    color: #111;
+    border: 1px solid #666;
+    border-radius: 6px;
+    margin: 0.5em;
+    
 }
 
 .clearfix {
@@ -208,42 +269,140 @@ span.like-count {
 }
 
 
+#login-container h1 {
+    
+}
+
+#show-login, #show-signup {
+    text-align: center;
+    display: block;
+}
 
 /* *** Login Signup Form *** */
 
-input[type=email], input[type=text], input[type=password], input[type=file] {
-	-webkit-appearance: none;
-	background: #666;
-	padding: 0.5em;
-	width: calc(100% - 2em);
+input[type=email], input[type=text], input[type=password] {
+	background: #fff;
+    padding: 0.5em;
+    width: calc(100% - 2em);
+    color: #111;
+    border: 1px solid #666;
+    border-radius: 6px;
+    margin: 0.5em;
 }
 
-input[type=submit] {
-	width: calc(100% - 1em);
-	-webkit-appearance: none;
-    border-radius: 0;
-    background: #ddd;
-    padding: 0.5em;
+#input-file {
+    color: transparent;
 }
+
+#input-file::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+#input-file::before {
+    content: "Upload a file";
+    display: inline-block;
+    background: #ddd;
+    border: none;
+    border-radius: 2em;
+    outline: none;
+    cursor: pointer;
+    color: black;
+    padding: 0.5em;
+    width: calc(100% - 1em);
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+label {
+    margin: auto 1em;
+    color: #999;   
+}
+
+#comment-submit-button {
+    width: calc(100% - 0em);
+	-webkit-appearance: none;
+    background: red;
+    padding: 0.5em;
+    border-radius: 2px;
+    border: none;
+    color: white;
+    border-radius: 2em;
+}
+
+#file-size-limit {
+    position: relative;
+    top: -2em;
+    padding: 0 .5em;
+    color: #A6A6A6;
+}
+
+
+#login-submit-input, #signup-submit-input {
+    width: calc(100% - 1em);
+    -webkit-appearance: none;
+    background: red;
+    padding: 0.5em;
+    border-radius: 2px;
+    border: none;
+    color: white;
+    border-radius: 2em;
+    margin: 0.5em;
+}
+
 
 #logout {
-	-webkit-appearance: none;
-    border-radius: 0;
+    -webkit-appearance: none;
     background: #ddd;
     padding: 0.5em;
+    border: none;
+    border-radius: 2px;
+    margin-top: .6em;
+    float: right;
+    margin-right: 0.5em;
+}
+
+
+.p-label {
+    font-weight: bold;
+    color: #898989;
 }
 
 
 /* *** User Profile Styles *** */
 .list-button {
 	display: block;
-	text-align: center;
-	line-height: 2em;
-	color: #000 !important;
-	background: #f7931e;
+	line-height: 3em;
+    padding: 0 1em;
+	color: #333 !important;
+    font-weight: bold;
+	background: #ddd;
+    margin: 2px 0em;
+    border-radius: 2px;
+    position: relative;
+}
+
+span.button-badge {
+    display: block;
+    position: absolute;
+    right: 1em;
+    top: calc(50% - 15px);
+    background: red; /*#198DFC;*/ /*#f7931e*/;
+    height: 1.5em;
+    line-height: 1.52em;
+    border-radius: 50%;
+    min-width: 1.5em;
+    color: #fff;
+    text-align: center;
+    font-weight: normal;
+    font-size: 1em;
+    padding: 3px;
 }
 
 
+.small-note {
+    font-weight: lighter;
+    font-size: 75%;
+}
 
 /* *** Modal Dialog *** */
 #modal-dialog {
@@ -265,10 +424,12 @@ input[type=submit] {
 	width: 120px;
 	height: 120px;
 	border-radius: 20px;
-	background: rgba(255, 255, 255, 0.5) url(../images/loading.gif) no-repeat center;
+	background: rgba(255, 255, 255, 1) url(../images/loading.gif) no-repeat center;
 	position: absolute;
 	left: 50%;
 	top: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
 	margin: -60px;
 }
 
@@ -296,7 +457,8 @@ input[type=submit] {
 	position: absolute;
 	left: 50%;
 	top: 50%;
-	margin: calc(1em - 50%);
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
 	text-align: center;
 }
 
@@ -308,11 +470,24 @@ input[type=submit] {
 	text-align: center;
 	padding: 1em;
 	-webkit-boxsizing: border-box;
-	background: #f7931e;
+	background: red;
+}
+
+#user-profile-container>div.color-2>p {
+    width: calc(66% - 2em);
+    float: left;
+    line-height: 2.5em;
+}
+
+#logout-container {
+    width: 33%;
+    float: right;
 }
 
 
-
+.clear {
+    clear: both;
+}   
 
 
 
